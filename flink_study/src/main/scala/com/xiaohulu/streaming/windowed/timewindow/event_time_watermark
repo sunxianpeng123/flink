@@ -1,0 +1,29 @@
+1、Event Time 和 Watermarks
+（1）使用Event Time 也会存在一些问题。
+
+        乱序与延迟是实时系统中最常见的问题。比如说，在实时系统中广泛使用的消息队列，很难保证端到端的全局有序，从而导致进入 Flink 集群的数据是无序的；
+        然后，由于洪峰的存在，比如秒杀或者重跑历史数据，很容易造成数据在消息队列堆积，从而造成延迟。
+        解决方案：采用Event Time的流计算处理器，需要评估Event Time进展，比如当窗口结束时，需要通知 Operator 关闭窗口并开始计算。
+（2）Watermark
+        Apache Flink 采用watermark来处理，watermark 带有一个时间戳，作为数据流的一部分随数据流流动，Watermark(t) 表示event time 小于等于 t 的都已经到达，如下图所示。
+
+    方法1：生成Watermark
+        在source中，直接生成watermark，不过，source生成的watermark 优先级比较低，可以被方法2中的覆盖掉。具体的定义在一篇讲Source & Sink 时详述。
+
+    方法2 Timestamp Assigner
+        Timestamp Assigner 输入数据流，产生一个新的数据流，新数据流带有产生的watermark，如果原数据流本身就有watermark，则覆盖原watermark。Timestamp Assigner 一般紧跟在source后，
+        但不是必须的，但是必须在第一个event time 操作前。
+        Timestamp Assigner 分两种：
+            Periodic： 周期性（一定时间间隔或一定数据量）产生watermark。
+            Punctuated： 间断的 watermark，一般根据event 决定是否产生新watermark。
+
+2、有Timestamp和Watermark的源函数(Source Function with Timestamps And Watermarks)
+    数据流源可以直接为它们产生的数据元素分配timestamp，并且他们也能发送水印。这样做的话，就没必要再去定义timestamp分配器了，需要注意的是:如果一个timestamp分配器被使用的话，由源提供的任何timestamp和watermark都会被重写。
+    为了通过源直接为一个元素分配一个timestamp，源需要调用SourceContext中的collectWithTimestamp(...)方法。为了生成watermark，源需要调用emitWatermark(Watermark)方法。
+
+3、TimeStamp分配器和Watermark生成器(Timestamp Assigners / Watermark Generators)
+    Timestamp分配器获取一个流并生成一个新的带有时间戳元素和水印的流。如果原来的流中已经有了timestamp和/或水印的话，这个timestamp分配器会覆盖掉。
+    Timestamp分配器常常在数据源之后就立即指定了，但是并不是要严格这么做，一个常用的模式是先解析(MapFunction)和过滤(FilterFunction)后再指定timestamp 分配器。在任何情况下，时间戳分配器都必须在第一个在事件时间上运行的操作(如:第一个时间窗口操作)之前指定。有一个特殊情况，当使用Kafka作为流作业的数据源时，Flink允许在源内部指定timestamp分配器和watermark生成器。更多关于如何进行的信息请参考Kafka Connector的文档。
+    接下来的部分展示了要创建自己的timestamp 抽取器和watermark发射器，程序员需要实现的主要接口。想要查看Flink预定义的抽取器，请前往预定于Timestamp Extractors/Watermark Emitter页面。
+
+

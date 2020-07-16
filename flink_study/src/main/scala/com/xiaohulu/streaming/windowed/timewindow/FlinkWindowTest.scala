@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.Properties
 
 import com.google.gson.{Gson, JsonParser}
+import com.xiaohulu.bean.{DateBean, MessageBean}
 import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment

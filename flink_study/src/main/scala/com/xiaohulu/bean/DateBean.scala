@@ -1,4 +1,4 @@
-package com.xiaohulu.streaming.windowed.timewindow
+package com.xiaohulu.bean
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnoreProperties
 

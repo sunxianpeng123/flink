@@ -1,4 +1,4 @@
-package com.xiaohulu.streaming.windowed.timewindow
+package com.xiaohulu.bean
 
 /**
   * \* Created with IntelliJ IDEA.

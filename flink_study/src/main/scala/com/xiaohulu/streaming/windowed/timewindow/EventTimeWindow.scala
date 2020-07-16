@@ -39,7 +39,6 @@ object EventTimeWindow {
             val eventTime = element.split(" ")(0).toLong
             println(eventTime)
             eventTime
-
           }
         }
       ).map(item => (item.split(" ")(1), 1L)).keyBy(0)
@@ -47,7 +46,7 @@ object EventTimeWindow {
     //    val streamWindow = stream.window(TumblingEventTimeWindows.of(Time.seconds(5)))
     //    val streamWindow2 = stream.window(TumblingEventTimeWindows.of(Time.seconds(5)))
     //指定滑动窗口
-//    val streamWindow = stream.window(SlidingEventTimeWindows.of(Time.seconds(10), Time.seconds(5)))
+    //    val streamWindow = stream.window(SlidingEventTimeWindows.of(Time.seconds(10), Time.seconds(5)))
     //指定会话窗口,相邻两条超过指定时间会执行
     val streamWindow = stream.window(EventTimeSessionWindows.withGap(Time.seconds(5)))
     val streamReduce = streamWindow.reduce((item1, item2) => (item1._1, item1._2 + item2._2))
