@@ -1,0 +1,40 @@
+转换函数
+
+Map
+DataStream -> DataStream，一个数据元生成一个新的数据元。
+将输入流的元素翻倍:
+dataStream.map { x => x * 2 }
+
+FlatMap
+DataStream -> DataStream，一个数据元生成多个数据元（可以为0）。将句子分割为单词：
+dataStream.flatMap { str => str.split(" ") }
+
+Filter
+DataStream -> DataStream，每个数据元执行布尔函数，只保存函数返回 true 的数据元。过滤掉零值的过滤器：
+dataStream.filter { _ != 0 }
+
+KeyBy
+DataStream -> KeyedStream，将流划分为不相交的分区。具有相同 Keys 的所有记录在同一分区。指定 key 的取值：
+dataStream.keyBy("someKey") // Key by field "someKey"
+dataStream.keyBy(0) // Key by the first element of a Tuple
+
+Reduce
+KeyedStream -> DataStream，KeyedStream 元素滚动执行 Reduce。将当前数据元与最新的一个 Reduce 值组合作为新值发送。创建 key 的值求和：
+keyedStream.reduce { _ + _ }
+
+Fold
+KeyedStream -> DataStream，具有初始值的 Reduce。将当前数据元与最新的一个 Reduce 值组合作为新值发送。当应用于序列（1,2,3,4,5）时，发出序列"start-1"，"start-1-2"，"start-1-2-3", ...：
+keyedStream.fold("start")((str, i) => { str + "-" + i })
+
+Aggregations
+KeyedStream -> DataStream，应用于 KeyedStream 上的滚动聚合。min 和 minBy 的区别是是 min 返回最小值，minBy 具有最小值的数据元（max 和 maxBy 同理）:
+keyedStream.sum(0)
+keyedStream.sum("key")
+keyedStream.min(0)
+keyedStream.min("key")
+keyedStream.max(0)
+keyedStream.max("key")
+keyedStream.minBy(0)
+keyedStream.minBy("key")
+keyedStream.maxBy(0)
+keyedStream.maxBy("key")

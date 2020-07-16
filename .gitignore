@@ -1,0 +1,4 @@
+flink_study/target/
+flink_study/.idea/
+flink_study/hashPartition/
+flink_study/rangePartition/

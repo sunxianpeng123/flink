@@ -1,0 +1,33 @@
+Data Sources
+
+源是程序读取输入数据的位置。可以使用 StreamExecutionEnvironment.addSource(sourceFunction) 将源添加到程序。Flink 有许多预先实现的源函数，也可以通过实现 SourceFunction 方法自定义非并行源 ，或通过实现 ParallelSourceFunction 或扩展 RichParallelSourceFunction 自定义并行源。
+
+有几个预定义的流数据源可从 StreamExecutionEnvironment 访问：
+
+基于文件：
+
+    readTextFile(path) 逐行读取文本文件（文件符合 TextInputFormat 格式），并作为字符串返回每一行。
+
+    readFile(fileInputFormat, path) 按指定的文件输入格式（fileInputFormat）读取指定路径的文件。
+
+    readFile(fileInputFormat, path, watchType, interval, pathFilter) 前两个方法的内部调用方法。根据给定文件格式（fileInputFormat）读取指定路径的文件。根据 watchType，定期监听路径下的新数据（FileProcessingMode.PROCESS_CONTINUOUSLY），或者处理当前在路径中的数据并退出（FileProcessingMode.PROCESS_ONCE）。使用 pathFilter，可以进一步排除正在处理的文件。
+
+基于Socket：
+
+    socketTextStream 从 Socket 读取，元素可以用分隔符分隔。
+
+基于集合：
+
+    fromCollection(Seq) 用 Java.util.Collection 对象创建数据流。集合中的所有元素必须属于同一类型。
+
+    fromCollection(Iterator) 用迭代器创建数据流。指定迭代器返回的元素的数据类型。
+
+    fromElements(elements: _*) 从给定的对象序列创建数据流。所有对象必须属于同一类型。
+
+    fromParallelCollection(SplittableIterator) 并行地从迭代器创建数据流。指定迭代器返回的元素的数据类型。
+
+    generateSequence(from, to) 并行生成给定间隔的数字序列。
+
+自定义：
+
+    addSource 附加新的源函数。例如，要从 Apache Kafka 中读取，可以使用 addSource(new FlinkKafkaConsumer08<>(...))。请详细查看 连接器。

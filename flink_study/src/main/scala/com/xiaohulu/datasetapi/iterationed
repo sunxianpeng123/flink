@@ -1,0 +1,22 @@
+迭代在 Flink 程序中实现循环。迭代运算符封装了程序的一部分并重复执行，将一次迭代的结果（部分结果）反馈到下一次迭代中。
+Flink 两种迭代类型：
+        批量迭代（Bulk Iteration）
+            调用 DataSet 的 iterate(int) 方法创建一个 BulkIteration，迭代以此为起点，返回一个 IterativeDataSet，可以用常规运算符进行转换。迭代调用的参数 int 指定最大迭代次数。
+
+            IterativeDataSet 调用 closeWith(DataSet) 方法来指定哪个转换应该反馈到下一个迭代，可以选择使用 closeWith(DataSet，DataSet) 指定终止条件。如果该 DataSet 为空，则它将评估第二个 DataSet 并终止迭代。如果没有指定终止条件，则迭代在给定的最大次数迭代后终止。
+
+            env.execute("Iterative Pi Example")
+
+            可以查看 K-Means示例(https://github.com/apache/flink/blob/master//flink-examples/flink-examples-batch/src/main/scala/org/apache/flink/examples/scala/clustering/KMeans.scala)，该示例使用 BulkIteration 来聚类一组未标记的点。
+
+
+
+        增量迭代（Delta Iteration）
+
+            DeltaIteration 利用了某些算法在每次迭代中不会更改解的每个数据点的特点。
+
+            除了在每次迭代中反馈的部分解决方案之外，还在迭代中维护状态，可以通过增量更新。迭代计算的结果是最后一次迭代之后的状态。参考 迭代的基本原理。
+
+            定义 DeltaIteration 类似于定义 BulkIteration。两个数据集构成每次迭代的输入（工作集和解集），并且在每次迭代中生成两个数据集作为结果（新工作集，增量解集）。
+
+            调用初始解决方案集的 iterateDelta(initialWorkset, maxIterations, key) 方法创建一个

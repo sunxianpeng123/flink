@@ -1,0 +1,6 @@
+1、Flink程序的基础构建模块是流(streams) 与 转换(transformations),每一个数据流起始于一个或多个 source，并终止于一个或多个 sink
+2、Flink是基于Master-Slave风格的架构,Flink集群启动时，会启动一个JobManager进程、至少一个TaskManager进程
+
+  import org.apache.flink.api.scala.extensions._
+  import org.apache.flink.api.scala._
+  import org.apache.flink.streaming.api.scala.extensions._
