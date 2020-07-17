@@ -7,7 +7,7 @@ import com.google.gson.{Gson, JsonParser}
 import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer08
+import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer010, FlinkKafkaConsumer011, FlinkKafkaConsumer09}
 import org.apache.flink.streaming.connectors.kafka.internals.KafkaTopicPartition
 
 /**
@@ -33,17 +33,23 @@ object MySqlSinkApp {
     props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
     props.put("auto.offset.reset", "latest") //value 反序列化
 
-    val myConsumer = new FlinkKafkaConsumer08[String]("node-bullet-crawler-59", new SimpleStringSchema(),props)
-    //默认读取上次保存的offset信息
-    myConsumer.setStartFromGroupOffsets()
-    // 从最早的数据开始进行消费，忽略存储的offset信息
-    myConsumer.setStartFromEarliest()
-    // 从最新的数据进行消费，忽略存储的offset信息
-    myConsumer.setStartFromLatest()
-    val specificStartOffsets = new java.util.HashMap[KafkaTopicPartition, java.lang.Long]()
-    //从指定位置进行消费
-    specificStartOffsets.put(new KafkaTopicPartition("node-bullet-crawler-59", 0), 23L)
-    myConsumer.setStartFromSpecificOffsets(specificStartOffsets)
+    val  properties = new Properties();
+    properties.setProperty("bootstrap.servers", "Kafka-01:9092");
+    properties.setProperty("group.id", "flink_test_sxp01")
+
+    val myConsumer = new FlinkKafkaConsumer010[String]("node-bullet-crawler-59", new SimpleStringSchema(),properties)
+
+    //    //默认读取上次保存的offset信息
+    //    myConsumer.setStartFromGroupOffsets()
+    //    // 从最早的数据开始进行消费，忽略存储的offset信息
+    //    myConsumer.setStartFromEarliest()
+    //    // 从最新的数据进行消费，忽略存储的offset信息
+    //    myConsumer.setStartFromLatest()
+    //    val specificStartOffsets = new java.util.HashMap[KafkaTopicPartition, java.lang.Long]()
+    //    //从指定位置进行消费
+    //    specificStartOffsets.put(new KafkaTopicPartition("node-bullet-crawler-59", 0), 23L)
+    //    myConsumer.setStartFromSpecificOffsets(specificStartOffsets)
+
 
     val dataStream = env.addSource(myConsumer)
 

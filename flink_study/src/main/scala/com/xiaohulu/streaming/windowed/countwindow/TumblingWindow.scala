@@ -14,6 +14,7 @@ import org.apache.flink.streaming.api.scala.{DataStream, KeyedStream, StreamExec
   * CountWindow根据窗口中相同key元素的数量来触发执行，执行时只计算元素数量达到窗口大小的key对应的结果。
   * \*/
 object TumblingWindow {
+  import org.apache.flink.api.scala._
   def main(args: Array[String]): Unit = {
     val env = StreamExecutionEnvironment.getExecutionEnvironment
     //隐式转换

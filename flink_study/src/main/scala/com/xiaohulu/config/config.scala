@@ -1,4 +1,4 @@
-package com.xiaohulu.streaming.windowed.timewindow
+package com.xiaohulu.config
 
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
@@ -6,16 +6,22 @@ import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 /**
   * \* Created with IntelliJ IDEA.
   * \* User: sunxianpeng
-  * \* Date: 2020/7/16
-  * \* Time: 18:15
+  * \* Date: 2020/7/17
+  * \* Time: 12:04
   * \* To change this template use File | Settings | File Templates.
   * \* Description: 
   * \*/
-object EventTimeSourceWatermark {
+object config {
+  import org.apache.flink.api.scala._
   def main(args: Array[String]): Unit = {
-    //  获取运行环境
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
+
+    /**
+      * 设置并行度
+      */
+
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
+
 
 
 

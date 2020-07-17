@@ -23,7 +23,11 @@
 
 3、TimeStamp分配器和Watermark生成器(Timestamp Assigners / Watermark Generators)
     Timestamp分配器获取一个流并生成一个新的带有时间戳元素和水印的流。如果原来的流中已经有了timestamp和/或水印的话，这个timestamp分配器会覆盖掉。
-    Timestamp分配器常常在数据源之后就立即指定了，但是并不是要严格这么做，一个常用的模式是先解析(MapFunction)和过滤(FilterFunction)后再指定timestamp 分配器。在任何情况下，时间戳分配器都必须在第一个在事件时间上运行的操作(如:第一个时间窗口操作)之前指定。有一个特殊情况，当使用Kafka作为流作业的数据源时，Flink允许在源内部指定timestamp分配器和watermark生成器。更多关于如何进行的信息请参考Kafka Connector的文档。
+
+    Timestamp分配器常常在数据源之后就立即指定了，但是并不是要严格这么做，一个常用的模式是先解析(MapFunction)和过滤(FilterFunction)后再指定timestamp 分配器。在任何情况下，
+    时间戳分配器都必须在第一个在事件时间上运行的操作(如:第一个时间窗口操作)之前指定。有一个特殊情况，当使用Kafka作为流作业的数据源时，Flink允许在源内部指定timestamp分配器和watermark生成器。
+    更多关于如何进行的信息请参考Kafka Connector的文档。
+
     接下来的部分展示了要创建自己的timestamp 抽取器和watermark发射器，程序员需要实现的主要接口。想要查看Flink预定义的抽取器，请前往预定于Timestamp Extractors/Watermark Emitter页面。
 
 

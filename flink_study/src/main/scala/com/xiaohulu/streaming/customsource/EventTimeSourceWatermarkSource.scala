@@ -7,12 +7,12 @@ import org.apache.flink.streaming.api.watermark.Watermark
 /**
   * \* Created with IntelliJ IDEA.
   * \* User: sunxianpeng
-  * \* Date: 2020/7/16
-  * \* Time: 18:53
+  * \* Date: 2020/7/17
+  * \* Time: 11:02
   * \* To change this template use File | Settings | File Templates.
   * \* Description: 
   * \*/
-class EventTimeWatermarkSource extends SourceFunction[(String, Long)] {
+class EventTimeSourceWatermarkSource extends SourceFunction[(String, Long)] {
   val str = "abcdefghijklmnopqrstuvwxyz"
   var res: (String, Long) = _
   var isRunning = true
@@ -33,7 +33,6 @@ class EventTimeWatermarkSource extends SourceFunction[(String, Long)] {
     }
 
   }
-
   override def cancel() = {
     isRunning = false
   }
