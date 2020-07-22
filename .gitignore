@@ -2,3 +2,5 @@ flink_study/target/
 flink_study/.idea/
 flink_study/hashPartition/
 flink_study/rangePartition/
+flink_kafka/.idea/
+flink_kafka/target/

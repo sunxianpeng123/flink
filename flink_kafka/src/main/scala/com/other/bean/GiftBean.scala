@@ -1,4 +1,4 @@
-package com.xiaohulu.streaming.sink.mysqlsink
+package com.other.bean
 
 /**
   * \* Created with IntelliJ IDEA.

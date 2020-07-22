@@ -6,7 +6,7 @@
 //import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 //import org.apache.flink.streaming.connectors.kafka.internals.KafkaTopicPartition
 //import org.apache.flink.api.scala._
-//import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer011, FlinkKafkaConsumer08}
+//import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer011}
 ///**
 //  * \* Created with IntelliJ IDEA.
 //  * \* User: sunxianpeng
