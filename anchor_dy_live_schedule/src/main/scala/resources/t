@@ -1,0 +1,12 @@
+1、目的
+    启动Flink任务方法的命令为 flink run flink.jar 但是有时候启动时需要向里面传入一些参数，比如配置文件的路径等。
+2、带参执行命令
+    首先在代码中配置：
+        ParameterTool parameters = ParameterTool.fromArgs(args);
+        String local_path = parameters.get("local_path",null);  //指定参数名：local_path
+        //读取配置文件
+        ParameterTool paramFromProps = ParameterTool.fromPropertiesFile(local_path);
+
+    代码打包完成jar，在服务器启动Flink任务时，需要添加自定义参数local_path，指定配置文件的绝对路径。比如：
+
+        flink run flink.jar -local_path ./config.properties

@@ -33,8 +33,8 @@ object KeyValueValueState {
     val fsPath = "file:///F:\\PythonProjects/checkpoints//fs/"
     val rocksdbPath = "file:///F:\\PythonProjects/checkpoints//rocksdb/"
 
-    //    env.setStateBackend(new MemoryStateBackend())
-//    env.setStateBackend(new FsStateBackend(fsPath, false))
+    //env.setStateBackend(new MemoryStateBackend())
+    //env.setStateBackend(new FsStateBackend(fsPath, false))
     env.setStateBackend(new RocksDBStateBackend(rocksdbPath,false))
     val config = env.getCheckpointConfig
     //任务流取消和故障时会保留Checkpoint数据，以便根据实际需要恢复到指定的Checkpoint
