@@ -2,6 +2,8 @@ package com.xiaohulu.streaming.transformationed
 
 import com.xiaohulu.streaming.customsource.MyNoParallelSourceScala
 import org.apache.flink.api.scala._
+import org.apache.flink.streaming.api.functions.source.SourceFunction
+import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceContext
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.windowing.time.Time
 /**
@@ -15,7 +17,7 @@ object StreamingDemoFilterScala {
 
     //隐式转换
 
-    val text = env.addSource(new MyNoParallelSourceScala)
+    val text = env.addSource(new MyNoParallelSourceScala2)
 
     val mapData = text.map(line => {
       println("原始接收到的数据：" + line)
@@ -35,4 +37,22 @@ object StreamingDemoFilterScala {
 
   }
 
+}
+class MyNoParallelSourceScala2 extends SourceFunction[Long]{
+
+  var count = 1L
+  var isRunning = true
+
+  override def run(ctx: SourceContext[Long]) = {
+    while(isRunning){
+      ctx.collect(count)
+      count += 1
+      Thread.sleep(1000)
+    }
+
+  }
+
+  override def cancel() = {
+    isRunning = false
+  }
 }

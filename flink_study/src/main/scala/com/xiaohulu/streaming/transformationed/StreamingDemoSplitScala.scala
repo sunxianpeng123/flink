@@ -5,6 +5,8 @@ import java.util
 import com.xiaohulu.streaming.customsource.MyNoParallelSourceScala
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.collector.selector.OutputSelector
+import org.apache.flink.streaming.api.functions.source.SourceFunction
+import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceContext
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 /**
   * Created by xuwei.tech on 2018/10/23.
@@ -16,7 +18,7 @@ object StreamingDemoSplitScala {
     val env = StreamExecutionEnvironment.getExecutionEnvironment
 
     //隐式转换
-    val text = env.addSource(new MyNoParallelSourceScala)
+    val text = env.addSource(new MyNoParallelSourceScala1)
 
     val splitStream = text.split(new OutputSelector[Long] {
       override def select(value: Long) = {
@@ -40,4 +42,22 @@ object StreamingDemoSplitScala {
 
   }
 
+}
+class MyNoParallelSourceScala1 extends SourceFunction[Long]{
+
+  var count = 1L
+  var isRunning = true
+
+  override def run(ctx: SourceContext[Long]) = {
+    while(isRunning){
+      ctx.collect(count)
+      count += 1
+      Thread.sleep(1000)
+    }
+
+  }
+
+  override def cancel() = {
+    isRunning = false
+  }
 }

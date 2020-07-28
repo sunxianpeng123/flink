@@ -29,14 +29,16 @@ object FLinkTransWindow {
     val streamKeyBy = stream.map(item => (item, 1L))
       .keyBy(0)
     val streamWindow = streamKeyBy
-//      .countWindow(5) //窗口大小5个单词,当同一个key达到5次时才会输出，当不同key但是达到五次不会输出
-      .countWindow(5,2) //窗口大小5个单词,当同一个key每达到2次时会输出一次，并且当同一个key出现5次时也会执行一次，
+      //.countWindow(5) //窗口大小5个单词,当同一个key达到5次时才会输出，当不同key但是达到五次不会输出
+      .countWindow(5, 2) //窗口大小5个单词,当同一个key每达到2次时会输出一次，并且当同一个key出现5次时也会执行一次，
 
       .reduce((x, y) => (x._1, x._2 + y._2))
     streamWindow.print()
     env.execute("socket window count scala")
 
   }
+
   case class WordWithCount(word: String, count: Long)
+
 }
 

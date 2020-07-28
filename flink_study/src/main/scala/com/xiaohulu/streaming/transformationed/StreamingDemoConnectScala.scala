@@ -26,7 +26,6 @@ object StreamingDemoConnectScala {
     }, line2 => {
       line2
     })
-
     result.print().setParallelism(1)
 
     env.execute("StreamingDemoWithMyNoParallelSourceScala")
