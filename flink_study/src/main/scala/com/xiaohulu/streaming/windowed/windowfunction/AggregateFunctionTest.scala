@@ -20,7 +20,7 @@ object AggregateFunction {
       *         createAccumulator为初始化acc，其目的是用于add第一个元素，
       *         add将每一个元素以某种方式添加到acc中，
       *         getResult获取最终计算结果，
-      *         merge为合并acc；
+      *         merge为合并acc；AggregateFunction中的merge方法仅SessionWindow会调用该方法，如果time window是不会调用的，merge方法即使返回null也是可以的。
       *     也就是说add需要传入一条元素和当前累加的中间结果，且第一次add的acc是预先定义的createAccumulator，add输出的是中间状态的acc，
       *     一般来说，元素add完毕之后便会调用getResult计算自身业务想要的结果。简单实现一个AggregateFunction具备计算平均数如下：
       */

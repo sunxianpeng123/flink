@@ -4,6 +4,7 @@ import com.xiaohulu.adapter.KsAdapter
 import com.xiaohulu.conf.ConfigTool
 import com.xiaohulu.extractor.{DyAnchorExtractor, DyGoodsExtractor}
 import com.xiaohulu.transform.FlinkStreamMap
+import com.xiaohulu.windowFunction.GoodsSalesNumAgg
 import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.contrib.streaming.state.RocksDBStateBackend
 import org.apache.flink.streaming.api.environment.CheckpointConfig
@@ -71,8 +72,11 @@ object FlinkScheduleApp_Stream {
     val dyAnchorDataStream = FlinkStreamMap.analysisDyAnchorKafkaStream(dyAnchorSourceDataStream).assignTimestampsAndWatermarks(new DyAnchorExtractor)
     val dyGoodsDataStream = FlinkStreamMap.analysisDyGoodsKafkaStream(dyGoodsSourceDataStream).assignTimestampsAndWatermarks(new DyGoodsExtractor)
     /**temple table*/
-    val dyGoodsWindowStream = dyGoodsDataStream.keyBy(e=>(e.platform_id,e.room_id,e.live_id,e.promotion_id)).timeWindow(Time.seconds(10),Time.seconds(5))
-    dyGoodsWindowStream.apply()
+    val dyGoodsWindowStream = dyGoodsDataStream.keyBy(e=>(e.platform_id,e.room_id,e.live_id,e.promotion_id))
+      .timeWindow(Time.seconds(2),Time.seconds(1))
+    val t = dyGoodsWindowStream.aggregate(new GoodsSalesNumAgg).setParallelism(1)
+
+    t.print()
 
 
 

@@ -1,11 +1,9 @@
-package com.xiaohulu
+package com.xiaohulu.test
 
-import org.apache.flink.table.api.scala._
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.functions.source.SourceFunction
 import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceContext
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
-import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.table.functions.ScalarFunction
 
 //import org.apache.flink.streaming.api.scala._
@@ -37,7 +35,7 @@ object App {
     val sql = s"select platform_id,if(promote_remark_max is not null,regexp_extract_all(promote_remark_max),null) as discounts_price from $tbname"
 
     tEnv.sqlQuery(sql).toAppendStream[(Int,Array[String])].print() //批转流
-    env.execute("socket window count scala")
+
 
 
   }
