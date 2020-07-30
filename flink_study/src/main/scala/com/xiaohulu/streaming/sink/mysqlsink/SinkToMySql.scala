@@ -32,7 +32,7 @@ class SinkToMySql extends RichSinkFunction[MessageBean]{
     var con :Connection = null
     try {
       Class.forName("com.mysql.jdbc.Driver")
-      con = DriverManager.getConnection("jdbc:mysql://192.168.120.158:3306/test_sun?useUnicode=true&characterEncoding=UTF-8", "root", "1qaz@WSX3edc")
+      con = DriverManager.getConnection("jdbc:mysql://192.168.120.158:3306/test_sun?useUnicode=true&characterEncoding=UTF-8&useSSL=false", "root", "1qaz@WSX3edc")
     } catch  {
       case  e:Exception =>System.out.println("-----------mysql get connection has exception , msg = "+ e.getMessage)
     }

@@ -12,11 +12,12 @@ import org.apache.flink.streaming.api.scala.{DataStream, KeyedStream, StreamExec
   * \* Description: 
   * \*/
 object SlidingWindow {
+
   import org.apache.flink.api.scala._
+
   def main(args: Array[String]): Unit = {
     val env = StreamExecutionEnvironment.getExecutionEnvironment
     val stream: DataStream[(String, Long)] = env.addSource(new CountWindowSource)
-
     /**
       * CountWindow 中的滑动窗口（Sliding Windows）
       * 将数据依据固定的窗口长度对数据进行切分。

@@ -28,7 +28,7 @@ object HelloWord {
 
     // Stream运行环境
     val env = StreamExecutionEnvironment.getExecutionEnvironment
-    val tEnv = TableEnvironment.getTableEnvironment(env)
+    val  tEnv = StreamTableEnvironment.create(env)
     println(tEnv)
     // 最简单的获取Source方式
     val source = env.fromCollection(data).toTable(tEnv, 'word)

@@ -1,10 +1,12 @@
 package com.xiaohulu
 
 import com.xiaohulu.adapter.KsAdapter
+import com.xiaohulu.bean.{GoodsResultBean, GoodsSaleNumBean}
 import com.xiaohulu.conf.ConfigTool
 import com.xiaohulu.extractor.{DyAnchorExtractor, DyGoodsExtractor}
 import com.xiaohulu.transform.FlinkStreamMap
 import com.xiaohulu.windowFunction.GoodsSalesNumAgg
+import org.apache.flink.api.common.functions.AggregateFunction
 import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.contrib.streaming.state.RocksDBStateBackend
 import org.apache.flink.streaming.api.environment.CheckpointConfig
@@ -29,7 +31,7 @@ object FlinkScheduleApp_Stream {
     Logger.getLogger("org").setLevel(Level.ERROR)
     //获取flink的运行环境
     val env = StreamExecutionEnvironment.getExecutionEnvironment
-    val  tEnv = StreamTableEnvironment.create(env)
+    val tEnv = StreamTableEnvironment.create(env)
     //
     //    val fsPath = "file:///checkpoints//"
     val fsPath = "file:///F:\\PythonProjects/checkpoints//fs/"
@@ -71,24 +73,49 @@ object FlinkScheduleApp_Stream {
     /** data transform */
     val dyAnchorDataStream = FlinkStreamMap.analysisDyAnchorKafkaStream(dyAnchorSourceDataStream).assignTimestampsAndWatermarks(new DyAnchorExtractor)
     val dyGoodsDataStream = FlinkStreamMap.analysisDyGoodsKafkaStream(dyGoodsSourceDataStream).assignTimestampsAndWatermarks(new DyGoodsExtractor)
-    /**temple table*/
-    val dyGoodsWindowStream = dyGoodsDataStream.keyBy(e=>(e.platform_id,e.room_id,e.live_id,e.promotion_id))
-      .timeWindow(Time.seconds(2),Time.seconds(1))
-    val t = dyGoodsWindowStream.aggregate(new GoodsSalesNumAgg).setParallelism(1)
+    /** temple table */
+    val dyGoodsWindowStream = dyGoodsDataStream.keyBy(e => (e.platform_id, e.room_id, e.live_id, e.promotion_id))
+      .timeWindow(Time.seconds(2), Time.seconds(1))
+    //    val t = dyGoodsWindowStream.aggregate(new GoodsSalesNumAgg)
+    val t = dyGoodsWindowStream.aggregate(new AggregateFunction[GoodsResultBean, (String, String, String, Long, Long), (String, String, String, Long, Long)]() {
+      override def add(in: GoodsResultBean, acc: (String, String, String, Long, Long)) = {
+        var res = ("", "", "", 0L, 0L)
+        if (acc._4 == 0L) res = (in.room_id, in.live_id, in.promotion_id, in.timestamp.toLong, in.sales_number)
+        else {
+          if (acc._4 <= in.timestamp.toLong) res = (in.room_id, in.live_id, in.promotion_id, in.timestamp.toLong, in.sales_number)
+          else res = (in.room_id, in.live_id, in.promotion_id, in.timestamp.toLong, acc._4)
+        }
+        res
+      }
+
+      override def createAccumulator() = ("", "", "", 0L, 0L)
+
+      override def getResult(acc: (String, String, String, Long, Long)) = {
+        println("===============")
+        acc
+      }
+
+      override def merge(acc: (String, String, String, Long, Long), acc1: (String, String, String, Long, Long)) = {
+        var res = ("", "", "", 0L, 0L)
+        if (acc._4 <= acc1._4) res = (acc._1, acc._2, acc._3, acc._4, acc1._5)
+        else res = (acc._1, acc._2, acc._3, acc._4, acc._5)
+        res
+      }
+    })
 
     t.print()
 
 
 
-//
+    //
 
     /** data sink */
     //sink config
-//    val dyAnchorStreamingFileSink = StreamingFileSink.forBulkFormat(new Path(ConfigTool.anchor_basic_path), ParquetAvroWriters.forReflectRecord(classOf[AnchorResultBean])).withBucketAssigner(new DateTimeBucketAssigner[AnchorResultBean]("yyyyMMdd")).build()
-//    val dyGoodsStreamingFileSink = StreamingFileSink.forBulkFormat(new Path(ConfigTool.goods_info_path), ParquetAvroWriters.forReflectRecord(classOf[GoodsResultBean])).withBucketAssigner(new DateTimeBucketAssigner[GoodsResultBean]("yyyyMMdd")).build()
+    //    val dyAnchorStreamingFileSink = StreamingFileSink.forBulkFormat(new Path(ConfigTool.anchor_basic_path), ParquetAvroWriters.forReflectRecord(classOf[AnchorResultBean])).withBucketAssigner(new DateTimeBucketAssigner[AnchorResultBean]("yyyyMMdd")).build()
+    //    val dyGoodsStreamingFileSink = StreamingFileSink.forBulkFormat(new Path(ConfigTool.goods_info_path), ParquetAvroWriters.forReflectRecord(classOf[GoodsResultBean])).withBucketAssigner(new DateTimeBucketAssigner[GoodsResultBean]("yyyyMMdd")).build()
 
     //    add sink
-//    anchorRs.toAppendStream[AnchorResultBean].print()//批转流
+    //    anchorRs.toAppendStream[AnchorResultBean].print()//批转流
     println("down")
     env.execute("Flink Anchor Stream Live Schedule")
 

@@ -1,6 +1,7 @@
 package com.xiaohulu.tableapi
 
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
+import org.apache.flink.table.api.scala.StreamTableEnvironment
 import org.apache.flink.table.api.{Table, TableEnvironment}
 
 /**
@@ -16,7 +17,7 @@ object Table2Stream {
 //  获取运行环境
     val env :StreamExecutionEnvironment =StreamExecutionEnvironment.getExecutionEnvironment
     //获取table
-    val tableEnv = TableEnvironment.getTableEnvironment(env)
+      val  tableEnv =StreamTableEnvironment.create(env)
 
     //读取数据源
     val path ="text01.txt"

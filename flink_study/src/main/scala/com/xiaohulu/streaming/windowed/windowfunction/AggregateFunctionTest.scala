@@ -1,6 +1,6 @@
 package com.xiaohulu.streaming.windowed.windowfunction
 
-import org.apache.flink.api.common.functions.{AggregateFunction, ReduceFunction}
+import org.apache.flink.api.common.functions.AggregateFunction
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 
 /**
@@ -11,7 +11,7 @@ import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
   * \* To change this template use File | Settings | File Templates.
   * \* Description: 
   * \*/
-object AggregateFunction {
+object AggregateFunctionTest {
   def main(args: Array[String]): Unit = {
     /**
       * AggregateFunction：更加通用，也更加复杂，通过WindowedStream的aggregate方法指定一个AggregateFunction来处理。

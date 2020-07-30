@@ -1,0 +1,39 @@
+    在某些业务场景下，统计更复杂的指标，就可能会依赖窗口中所有的数据元素，以及可能会需要操作窗口中的状态数据和窗口元数据，全量聚合函数ProcessWindowFunction能够提供类似这种支持。
+    ProcessWindowFunction的简单应用如：统计窗口数据元素中某一字段的中位数和众数。
+
+1、ProcessWindowFunction
+    Flink针对全量聚合计算提供了一个骨架抽象类ProcessWindowFunction，如果我们不需要操作状态数据，则只需要实现ProcessWindowFunction的process（）方法即可，在该方法中具体定义计算评估和输出的逻辑。
+
+2、ProcessWindowFunction with Incremental Aggregation
+
+    增量聚合函数由于是基于中间状态计算，因此性能较好，但是灵活性却不及ProcessWindowFunction；缺失了对窗口状态数据的操作以及对窗口中元数据信息的获取等。
+    但是使用全量聚合函数去完成一些基础的增量统计运算又相对比较浪费资源，性能低于增量。因此Flink提供了一种方式，可以将Incremental Aggregation Function和ProcessWindowFunction整合起来，
+    充分利用这两种计算方式的优势去处理数据。
+   （1） AggregateFunction combined with ProcessWindowFunction
+
+        该例通过定义AggregateFunction 求取平均数的逻辑，然后AggregateFunction 的输出会作为ProcessWindowFunction 的输入，ProcessWindowFunction 会将window触发时的平均值连同key一起作为输出。
+
+   （2）ReduceFunction combined with ProcessWindowFunction
+
+        该例通过定义ReduceFunction 求取最大值，定义ProcessWindowFunction从窗口元数据中获取窗口结束时间，然后将结束时间和ReduceFunction 的最大值结果组合成一个新的Tuple返回。
+        同样的，ReduceFunction 的输出会作为ProcessWindowFunction的输入，同理FoldFunction也可以按照同样的方式和ProcessWindowFunction 整合，在实现增量聚合计算的同时，也可以操作窗口中的元数据信息以及状态数据。
+
+3、Using per-window state in ProcessWindowFunction
+    在某些可以试用ProcessWindowFunction的地方，也可以使用WindowFunction。这个是较旧的版本，没有某些高级功能。
+    ProcessWindowFunction与WindowFunction不同点在于使用ProcessWindowFunction不仅仅可以拿到窗口的院内数据信息，还可以获取WindowState和GlobalState。
+        WindowState - 表示窗口的状态，该状态值和窗口绑定的，一旦窗口消亡状态消失。
+        GlobalState - 表示窗口的状态，该状态值和Key绑定，可以累计多个窗口的值。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
