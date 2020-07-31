@@ -1,4 +1,4 @@
-package com.xiaohulu.bean
+package com.xiaohulu.bean.analysisBean
 
 /**
   * \* Created with IntelliJ IDEA.

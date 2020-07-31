@@ -1,29 +1,16 @@
 package com.xiaohulu
 
-import java.text.SimpleDateFormat
-import java.time.ZoneId
-import java.util.Date
-
-import com.google.gson.{Gson, JsonParser}
 import com.xiaohulu.adapter.KsAdapter
-import com.xiaohulu.bean.{AnchorResultBean, DataBean, GoodsResultBean}
 import com.xiaohulu.conf.ConfigTool
-import com.xiaohulu.extractor.{DyAnchorExtractor, DyGoodsExtractor}
+import com.xiaohulu.transform.extractor.{DyAnchorExtractor, DyGoodsExtractor}
 import com.xiaohulu.transform.FlinkStreamMap
-import org.apache.flink.api.common.functions.CoGroupFunction
 import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.contrib.streaming.state.RocksDBStateBackend
-import org.apache.flink.core.fs.Path
 import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
 import org.apache.flink.streaming.api.environment.CheckpointConfig
-import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink
-import org.apache.flink.streaming.api.functions.sink.filesystem.bucketassigners.DateTimeBucketAssigner
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer
 import org.apache.log4j.{Level, Logger}
-import org.apache.flink.formats.parquet.avro.ParquetAvroWriters
-import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows
-import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.table.api.scala.StreamTableEnvironment
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.table.api.scala._
@@ -86,8 +73,6 @@ object FlinkScheduleApp_Tb {
     val dyGoodsDataStream = FlinkStreamMap.analysisDyGoodsKafkaStream(dyGoodsSourceDataStream).assignTimestampsAndWatermarks(new DyGoodsExtractor).toTable(tEnv)
     /**temple table*/
     val ksAdapter = KsAdapter.transGoodsInfo(dyAnchorDataStream,dyGoodsDataStream,tEnv)
-
-    dyGoodsDataStream
 
 
 

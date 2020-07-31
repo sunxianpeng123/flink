@@ -1,4 +1,4 @@
-package com.xiaohulu.udf
+package com.xiaohulu.transform.udf
 
 import org.apache.flink.table.functions.ScalarFunction
 

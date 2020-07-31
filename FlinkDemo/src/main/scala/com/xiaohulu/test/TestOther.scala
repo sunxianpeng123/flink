@@ -1,6 +1,6 @@
 package com.xiaohulu.test
 
-import com.xiaohulu.bean.GoodsSaleNumBean
+import com.xiaohulu.bean.flinkMapBean.GoodsSaleNumBean
 
 /**
   * \* Created with IntelliJ IDEA.
@@ -15,6 +15,11 @@ object TestOther {
 
     val g = new GoodsSaleNumBean
     println(g.timestamp)
+
+
+    var num = 100
+    var x = num / 9 * 9
+    println(x)
   }
 }
 

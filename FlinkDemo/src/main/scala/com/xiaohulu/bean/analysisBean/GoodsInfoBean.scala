@@ -1,4 +1,4 @@
-package com.xiaohulu.bean
+package com.xiaohulu.bean.analysisBean
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnoreProperties
 

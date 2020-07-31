@@ -1,16 +1,17 @@
 package com.xiaohulu
 
-import com.xiaohulu.adapter.KsAdapter
-import com.xiaohulu.bean.{GoodsResultBean, GoodsSaleNumBean}
+import com.xiaohulu.bean.analysisResultBean.GoodsResultBean
+import com.xiaohulu.bean.flinkMapBean.{GoodsPromotionBean, GoodsSaleNumBean}
 import com.xiaohulu.conf.ConfigTool
-import com.xiaohulu.extractor.{DyAnchorExtractor, DyGoodsExtractor}
+import com.xiaohulu.transform.extractor.{DyAnchorExtractor, DyGoodsExtractor}
 import com.xiaohulu.transform.FlinkStreamMap
-import com.xiaohulu.windowFunction.GoodsSalesNumAgg
-import org.apache.flink.api.common.functions.AggregateFunction
+import com.xiaohulu.transform.windowFunction.{AnchorViewerAggregate, GoodsPromotionAggregate, GoodsSalesNumAggregate}
+import org.apache.flink.api.common.functions.{AggregateFunction, JoinFunction}
 import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.contrib.streaming.state.RocksDBStateBackend
 import org.apache.flink.streaming.api.environment.CheckpointConfig
 import org.apache.flink.streaming.api.scala.{StreamExecutionEnvironment, _}
+import org.apache.flink.streaming.api.windowing.assigners.{SlidingEventTimeWindows, TumblingEventTimeWindows}
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer
@@ -35,7 +36,7 @@ object FlinkScheduleApp_Stream {
     //
     //    val fsPath = "file:///checkpoints//"
     val fsPath = "file:///F:\\PythonProjects/checkpoints//fs/"
-    val rocksdbPath = "file:///F:\\PythonProjects/checkpoints//rocksdb/"
+    val rocksdbPath = "file:///F:/checkpoints//rocksdb/"
 
     //    env.setStateBackend(new MemoryStateBackend())
     //    env.setStateBackend(new FsStateBackend(fsPath, false))
@@ -60,7 +61,7 @@ object FlinkScheduleApp_Stream {
     config.setCheckpointTimeout(60000)
     // 同一时间只允许进行一个检查点
     config.setMaxConcurrentCheckpoints(1)
-    env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
+    if (ConfigTool.where_to_run.equals("local")) env.getConfig.setAutoWatermarkInterval(500) else env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
 
     /** data source */
     //    consumer
@@ -73,41 +74,24 @@ object FlinkScheduleApp_Stream {
     /** data transform */
     val dyAnchorDataStream = FlinkStreamMap.analysisDyAnchorKafkaStream(dyAnchorSourceDataStream).assignTimestampsAndWatermarks(new DyAnchorExtractor)
     val dyGoodsDataStream = FlinkStreamMap.analysisDyGoodsKafkaStream(dyGoodsSourceDataStream).assignTimestampsAndWatermarks(new DyGoodsExtractor)
-    /** temple table */
-    val dyGoodsWindowStream = dyGoodsDataStream.keyBy(e => (e.platform_id, e.room_id, e.live_id, e.promotion_id))
-      .timeWindow(Time.seconds(2), Time.seconds(1))
-    //    val t = dyGoodsWindowStream.aggregate(new GoodsSalesNumAgg)
-    val t = dyGoodsWindowStream.aggregate(new AggregateFunction[GoodsResultBean, (String, String, String, Long, Long), (String, String, String, Long, Long)]() {
-      override def add(in: GoodsResultBean, acc: (String, String, String, Long, Long)) = {
-        var res = ("", "", "", 0L, 0L)
-        if (acc._4 == 0L) res = (in.room_id, in.live_id, in.promotion_id, in.timestamp.toLong, in.sales_number)
-        else {
-          if (acc._4 <= in.timestamp.toLong) res = (in.room_id, in.live_id, in.promotion_id, in.timestamp.toLong, in.sales_number)
-          else res = (in.room_id, in.live_id, in.promotion_id, in.timestamp.toLong, acc._4)
-        }
-        res
-      }
 
-      override def createAccumulator() = ("", "", "", 0L, 0L)
+    /** adapter */
+    println("计算Goods相关数据=============")
+        val dyGoodsWindowStream = dyGoodsDataStream.keyBy(e => (e.platform_id, e.room_id, e.live_id, e.promotion_id)).timeWindow(Time.seconds(2), Time.seconds(1)).aggregate(new GoodsSalesNumAggregate)
+    //    dyGoodsWindowStream.print()
+    val dyGoodsPromotionWindowStream = dyGoodsDataStream.keyBy(_.promotion_id).timeWindow(Time.seconds(2), Time.seconds(1)).aggregate(new GoodsPromotionAggregate)
+    //  dyGoodsPromotionWindowStream.print()
+//    val dyGoodsWindowJoinStream = dyGoodsWindowStream.join(dyGoodsPromotionWindowStream).where(x=>(x.platform_id,x.promotion_id)).equalTo(y=>(y.platform_id,y.promotion_id))
+//      .window(SlidingEventTimeWindows.of(Time.seconds(5), Time.seconds(1)))
+//      .apply(new JoinFunction[GoodsSaleNumBean,GoodsPromotionBean,(String,String,Int)] {
+//        override def join(in1: GoodsSaleNumBean, in2: GoodsPromotionBean) = {
+//          (in1.platform_id,in1.promotion_id,)
+//        }
+//      })
 
-      override def getResult(acc: (String, String, String, Long, Long)) = {
-        println("===============")
-        acc
-      }
-
-      override def merge(acc: (String, String, String, Long, Long), acc1: (String, String, String, Long, Long)) = {
-        var res = ("", "", "", 0L, 0L)
-        if (acc._4 <= acc1._4) res = (acc._1, acc._2, acc._3, acc._4, acc1._5)
-        else res = (acc._1, acc._2, acc._3, acc._4, acc._5)
-        res
-      }
-    })
-
-    t.print()
-
-
-
-    //
+    //    val dyAnchorWindowStream = dyAnchorDataStream.map(e => (e.platformId, e.room_id, e.timestamp.toLong / 300 * 300.toLong, e.onlineViewer, e.totalViewer))
+    //      .keyBy(e => (e._1, e._2, e._3)).timeWindow(Time.seconds(2), Time.seconds(1)).aggregate(new AnchorViewerAggregate)
+    //    dyAnchorWindowStream.print()
 
     /** data sink */
     //sink config
@@ -118,6 +102,7 @@ object FlinkScheduleApp_Stream {
     //    anchorRs.toAppendStream[AnchorResultBean].print()//批转流
     println("down")
     env.execute("Flink Anchor Stream Live Schedule")
+
 
   }
 }

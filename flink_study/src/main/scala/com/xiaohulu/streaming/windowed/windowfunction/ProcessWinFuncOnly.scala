@@ -13,7 +13,7 @@ import org.apache.flink.util.Collector
   * \* Date: 2020/7/29
   * \* Time: 16:41
   * \* To change this template use File | Settings | File Templates.
-  * \* Description:
+  * \* Description:https://blog.csdn.net/yangxiaobo118/category_8685885.html
   * \*/
 object ProcessWinFuncOnly {
 

@@ -1,4 +1,4 @@
-package com.xiaohulu.bean
+package com.xiaohulu.bean.flinkMapBean
 
 /**
   * \* Created with IntelliJ IDEA.
@@ -9,6 +9,7 @@ package com.xiaohulu.bean
   * \* Description: 
   * \*/
 class GoodsSaleNumBean extends Serializable {
+  var platform_id :String = _
   var room_id: String = _
   var promotion_id: String = _
   var live_id: String = _

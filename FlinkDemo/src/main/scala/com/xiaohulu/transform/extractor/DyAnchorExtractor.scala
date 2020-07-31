@@ -1,9 +1,9 @@
-package com.xiaohulu.extractor
+package com.xiaohulu.transform.extractor
 
 import java.text.SimpleDateFormat
 import java.util.Date
 
-import com.xiaohulu.bean.AnchorResultBean
+import com.xiaohulu.bean.analysisResultBean.AnchorResultBean
 import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks
 import org.apache.flink.streaming.api.watermark.Watermark
 

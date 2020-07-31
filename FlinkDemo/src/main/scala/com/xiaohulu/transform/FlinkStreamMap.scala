@@ -4,8 +4,10 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 import com.google.gson.{Gson, JsonParser}
-import com.xiaohulu.bean.{AnchorResultBean, DataBean, GoodsResultBean}
+import com.xiaohulu.bean.analysisBean.DataBean
+import com.xiaohulu.bean.analysisResultBean.{AnchorResultBean, GoodsResultBean}
 import org.apache.flink.streaming.api.scala.DataStream
+
 import scala.collection.JavaConverters._
 import org.apache.flink.streaming.api.scala._
 /**

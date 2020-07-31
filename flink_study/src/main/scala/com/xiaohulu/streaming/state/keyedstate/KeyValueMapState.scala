@@ -57,7 +57,7 @@ class CountWindowAverageWithMapState extends RichFlatMapFunction[(Long, Long), (
   }
 
   override def flatMap(input: (Long, Long), out: Collector[(Long, Double)]): Unit = {
-    mapState.put(UUID.randomUUID().toString,input._2)
+    mapState.put(UUID.randomUUID().toString, input._2)
     val arrayList = Lists.newArrayList(mapState.values());
 
     // 判断，如果当前的 key 出现了 3 次，则需要计算平均值，并且输出

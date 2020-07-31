@@ -1,7 +1,6 @@
 package com.xiaohulu.adapter
 
-import com.xiaohulu.bean.{AnchorResultBean, GoodsResultBean}
-import com.xiaohulu.udf.RegexpExtractAll
+import com.xiaohulu.transform.udf.RegexpExtractAll
 import org.apache.flink.table.api.Table
 import org.apache.flink.table.api.scala.StreamTableEnvironment
 import org.apache.flink.streaming.api.scala._
