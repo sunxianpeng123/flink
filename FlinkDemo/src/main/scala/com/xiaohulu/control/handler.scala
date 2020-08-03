@@ -27,24 +27,25 @@ object handler {
     // 上面 都没匹配上 证明是 本地测试跑
     if (files == null|| files.isEmpty) {
       //本地 resource
+      println(3)
       val path = this.getClass.getClassLoader.getResource("db_cs.properties").getPath
       files = path
     }
     if (files == null || files.isEmpty) {
-      println(2)
+      println(4)
       //PropertyUtil.load("/work/spark_task/config/mongodb_douyin_tool.properties")
     } else {
-      println(3)
+      println(5)
       if (files.startsWith("file:")) {
-        println(4)
+        println(6)
         PropertyUtil.load(files.substring("file:".length))
         println(PropertyUtil.load(files.substring("file:".length)))
       } else if (files.startsWith("http")) {
-        println(5)
+        println(7)
         val url = new URL(files);
         PropertyUtil.load(url)
       } else {
-        println(6)
+        println(8)
         PropertyUtil.load(files)
       }
     }

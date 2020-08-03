@@ -15,7 +15,7 @@ import org.apache.flink.streaming.api.windowing.assigners.{SlidingEventTimeWindo
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer
-import org.apache.flink.table.api.scala.{StreamTableEnvironment, _}
+import org.apache.flink.table.api.bridge.scala.StreamTableEnvironment
 import org.apache.log4j.{Level, Logger}
 
 
@@ -77,17 +77,17 @@ object FlinkScheduleApp_Stream {
 
     /** adapter */
     println("计算Goods相关数据=============")
-        val dyGoodsWindowStream = dyGoodsDataStream.keyBy(e => (e.platform_id, e.room_id, e.live_id, e.promotion_id)).timeWindow(Time.seconds(2), Time.seconds(1)).aggregate(new GoodsSalesNumAggregate)
+    val dyGoodsWindowStream = dyGoodsDataStream.keyBy(e => (e.platform_id, e.room_id, e.live_id, e.promotion_id)).timeWindow(Time.seconds(2), Time.seconds(1)).aggregate(new GoodsSalesNumAggregate)
     //    dyGoodsWindowStream.print()
     val dyGoodsPromotionWindowStream = dyGoodsDataStream.keyBy(_.promotion_id).timeWindow(Time.seconds(2), Time.seconds(1)).aggregate(new GoodsPromotionAggregate)
     //  dyGoodsPromotionWindowStream.print()
-//    val dyGoodsWindowJoinStream = dyGoodsWindowStream.join(dyGoodsPromotionWindowStream).where(x=>(x.platform_id,x.promotion_id)).equalTo(y=>(y.platform_id,y.promotion_id))
-//      .window(SlidingEventTimeWindows.of(Time.seconds(5), Time.seconds(1)))
-//      .apply(new JoinFunction[GoodsSaleNumBean,GoodsPromotionBean,(String,String,Int)] {
-//        override def join(in1: GoodsSaleNumBean, in2: GoodsPromotionBean) = {
-//          (in1.platform_id,in1.promotion_id,)
-//        }
-//      })
+    //    val dyGoodsWindowJoinStream = dyGoodsWindowStream.join(dyGoodsPromotionWindowStream).where(x=>(x.platform_id,x.promotion_id)).equalTo(y=>(y.platform_id,y.promotion_id))
+    //      .window(SlidingEventTimeWindows.of(Time.seconds(5), Time.seconds(1)))
+    //      .apply(new JoinFunction[GoodsSaleNumBean,GoodsPromotionBean,(String,String,Int)] {
+    //        override def join(in1: GoodsSaleNumBean, in2: GoodsPromotionBean) = {
+    //          (in1.platform_id,in1.promotion_id,)
+    //        }
+    //      })
 
     //    val dyAnchorWindowStream = dyAnchorDataStream.map(e => (e.platformId, e.room_id, e.timestamp.toLong / 300 * 300.toLong, e.onlineViewer, e.totalViewer))
     //      .keyBy(e => (e._1, e._2, e._3)).timeWindow(Time.seconds(2), Time.seconds(1)).aggregate(new AnchorViewerAggregate)

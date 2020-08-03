@@ -4,10 +4,11 @@ import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.functions.source.SourceFunction
 import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceContext
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
+import org.apache.flink.table.api.bridge.scala.StreamTableEnvironment
 import org.apache.flink.table.functions.ScalarFunction
 
 //import org.apache.flink.streaming.api.scala._
-import org.apache.flink.table.api.scala._
+//import org.apache.flink.table.api.scala._
 
 /**
   * \* Created with IntelliJ IDEA.
@@ -28,13 +29,13 @@ object App {
     val tEnv = StreamTableEnvironment.create(env)
 
     tEnv.registerFunction("regexp_extract_all",new RegexpExtractAll)
-    val transStream = sourceStream.map(e => C(e._1, e._2)).toTable(tEnv)
+    val transStream = sourceStream.map(e => C(e._1, e._2))//.toTable(tEnv)
     val tbname = "info"
     tEnv.createTemporaryView(tbname,transStream)
 
     val sql = s"select platform_id,if(promote_remark_max is not null,regexp_extract_all(promote_remark_max),null) as discounts_price from $tbname"
 
-    tEnv.sqlQuery(sql).toAppendStream[(Int,Array[String])].print() //批转流
+//    tEnv.sqlQuery(sql).toAppendStream[(Int,Array[String])].print() //批转流
 
 
 

@@ -1,8 +1,5 @@
 package com.xiaohulu.tableapi
 
-import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
-import org.apache.flink.table.api.TableEnvironment
-import org.apache.flink.table.api.scala.StreamTableEnvironment
 
 /**
   * \* Created with IntelliJ IDEA.
@@ -13,6 +10,11 @@ import org.apache.flink.table.api.scala.StreamTableEnvironment
   * \* Description:
   * \*/
 object Table2Stream_2 {
+    import org.apache.flink.table.api._
+    import org.apache.flink.table.api.bridge.scala._
+    import org.apache.flink.streaming.api.scala._
+    import org.apache.flink.api.scala.extensions._
+    import org.apache.flink.streaming.api.scala.extensions._
     def main(args: Array[String]): Unit = {
         //  获取运行环境
         val env :StreamExecutionEnvironment =StreamExecutionEnvironment.getExecutionEnvironment
@@ -22,8 +24,11 @@ object Table2Stream_2 {
         val path ="text01.txt"
         val stream =env.readTextFile(path)
         //    map
-        import org.apache.flink.api.scala._
-        import org.apache.flink.table.api.scala._
+        import org.apache.flink.table.api._
+        import org.apache.flink.table.api.bridge.scala._
+        import org.apache.flink.streaming.api.scala._
+        import org.apache.flink.api.scala.extensions._
+        import org.apache.flink.streaming.api.scala.extensions._
         val mapStream = stream.flatMap(_.split(" ")).map(word=>WordWithCount(word, scala.util.Random.nextInt(10).toLong))
         //将DataStream转化成Table
         val table = tableEnv.fromDataStream(mapStream)

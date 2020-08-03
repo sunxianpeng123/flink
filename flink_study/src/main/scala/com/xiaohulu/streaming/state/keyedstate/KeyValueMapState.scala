@@ -6,7 +6,8 @@ import org.apache.flink.api.common.functions.RichFlatMapFunction
 import org.apache.flink.api.common.state.{MapState, MapStateDescriptor}
 import org.apache.flink.api.scala.createTypeInformation
 import org.apache.flink.configuration.Configuration
-import org.apache.flink.shaded.curator.org.apache.curator.shaded.com.google.common.collect.Lists
+import org.apache.flink.shaded.curator4.org.apache.curator.shaded.com.google.common.collect.Lists
+//import org.apache.flink.shaded.curator.org.apache.curator.shaded.com.google.common.collect.Lists
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.util.Collector
 import org.apache.log4j.{Level, Logger}

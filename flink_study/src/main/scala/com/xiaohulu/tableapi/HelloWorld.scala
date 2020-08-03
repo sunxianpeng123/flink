@@ -4,9 +4,9 @@ import org.apache.flink.api.scala._
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.sink.{RichSinkFunction, SinkFunction}
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
-import org.apache.flink.table.api.TableEnvironment
-import org.apache.flink.table.api.scala._
-
+import org.apache.flink.table.api._
+import org.apache.flink.table.api.bridge.scala._
+import org.apache.flink.streaming.api.scala._
 import scala.collection.mutable
 /**
   * \* Created with IntelliJ IDEA.
@@ -18,7 +18,11 @@ import scala.collection.mutable
   * \*/
 
 object HelloWord {
-
+  import org.apache.flink.table.api._
+  import org.apache.flink.table.api.bridge.scala._
+  import org.apache.flink.streaming.api.scala._
+  import org.apache.flink.api.scala.extensions._
+  import org.apache.flink.streaming.api.scala.extensions._
   def main(args: Array[String]): Unit = {
     // 测试数据
     val data = Seq("Flink", "Bob", "Bob", "something", "Hello", "Flink", "Bob")

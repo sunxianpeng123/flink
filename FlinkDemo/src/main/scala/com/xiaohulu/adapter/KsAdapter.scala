@@ -1,10 +1,13 @@
 package com.xiaohulu.adapter
 
+import com.xiaohulu.bean.analysisResultBean.{AnchorResultBean, GoodsResultBean}
 import com.xiaohulu.transform.udf.RegexpExtractAll
 import org.apache.flink.table.api.Table
-import org.apache.flink.table.api.scala.StreamTableEnvironment
+import org.apache.flink.table.api.bridge.scala.StreamTableEnvironment
+import org.apache.flink.types.Row
+//import org.apache.flink.table.api.scala.StreamTableEnvironment
 import org.apache.flink.streaming.api.scala._
-import org.apache.flink.table.api.scala._
+//import org.apache.flink.table.api.scala._
 import org.apache.flink.table.expressions.Max
 
 /**
@@ -13,11 +16,11 @@ import org.apache.flink.table.expressions.Max
   * \* Date: 2020/7/27
   * \* Time: 18:31
   * \* To change this template use File | Settings | File Templates.
-  * \* Description: 
+  * \* Description:
   * \*/
 object KsAdapter {
 
-  def transGoodsInfo(dyAnchorDataStream: Table, dyGoodsDataStream: Table, tEnv: StreamTableEnvironment): Unit = {
+  def transGoodsInfo(dyAnchorDataStream: DataStream[AnchorResultBean], dyGoodsDataStream: DataStream[GoodsResultBean], tEnv: StreamTableEnvironment): Unit = {
     //注册用户自定义函数
     tEnv.registerFunction("regexp_extract_all", new RegexpExtractAll())
     //创建虚拟表
@@ -71,7 +74,8 @@ object KsAdapter {
 
     val testtable_1 = tEnv.sqlQuery(s"select if(max(seckill_min_price)>0, max(seckill_min_price), min(min_price)) as mp FROM  $goods_tb_name v  group by  promotion_id")
     testtable_1.printSchema()
-    testtable_1.toRetractStream[Double].print()
+//    testtable_1.toRetractStream[Row]//.print()
+
 
 
 

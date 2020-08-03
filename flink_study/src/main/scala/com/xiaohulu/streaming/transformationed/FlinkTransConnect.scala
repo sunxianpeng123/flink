@@ -13,21 +13,22 @@ import org.apache.flink.streaming.api.scala._
 object FlinkTransConnect {
   def main(args: Array[String]): Unit = {
 
-//  获取运行环境
-    val env :StreamExecutionEnvironment =StreamExecutionEnvironment.getExecutionEnvironment
+    //  获取运行环境
+    val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
 
-    val stream1 =env.generateSequence(1,10)
+    val stream1: DataStream[Long] = env.generateSequence(1, 10)
 
-    val path ="text01.txt"
-    val stream2 =env.readTextFile(path).flatMap(_.split(" "))
+    val path = "text01.txt"
+    val stream2: DataStream[String] = env.readTextFile(path).flatMap(_.split(" "))
 
-//1 comap
-    val connectedStreams= stream1.connect(stream2)
-//    connectedStreams.map(item=>item*2,item=>(item,1L)).print()//两个元素的处理是完全独立的
-//    connectedStreams.map(item=>println(item+"___"),item=>println(item))
+    //1 comap
+    val connectedStreams = stream1.connect(stream2)
 
-// 2 coflatmap
-    connectedStreams.flatMap(item=>List(item),item=>List(item)).print()
+    //    connectedStreams.map(item=>item*2,item=>(item,1L)).print()//两个元素的处理是完全独立的
+    //    connectedStreams.map(item=>println(item+"___"),item=>println(item))
+
+    // 2 coflatmap
+    connectedStreams.flatMap(item => List(item), item => List(item)).print()
 
 
     env.execute("FlinkSource01")

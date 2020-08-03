@@ -2,10 +2,12 @@ package com.xiaohulu.test
 
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
+import org.apache.flink.table.api.bridge.scala.StreamTableEnvironment
 import org.apache.flink.table.functions.ScalarFunction
+import org.apache.flink.types.Row
 
 //import org.apache.flink.streaming.api.scala._
-import org.apache.flink.table.api.scala._
+import org.apache.flink.table.api._
 
 /**
   * \* Created with IntelliJ IDEA.
@@ -16,7 +18,9 @@ import org.apache.flink.table.api.scala._
   * \* Description: 
   * \*/
 object UDFTest {
-
+  import org.apache.flink.table.api._
+  import org.apache.flink.table.api.bridge.scala._
+  import org.apache.flink.streaming.api.scala._
   case class S(name:String)
   case class R(splited:String)
 
@@ -35,7 +39,7 @@ object UDFTest {
     // use the function in SQL API
     val t = tEnv.sqlQuery(s"SELECT split(name) as splited FROM $table_name")
     t.printSchema()
-    t.toAppendStream[R].print()
+    t.toRetractStream[Row].print()
 
 
     env.execute("socket window count scala")

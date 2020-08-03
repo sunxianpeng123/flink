@@ -11,9 +11,9 @@ import org.apache.flink.streaming.api.environment.CheckpointConfig
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer
 import org.apache.log4j.{Level, Logger}
-import org.apache.flink.table.api.scala.StreamTableEnvironment
 import org.apache.flink.streaming.api.scala._
-import org.apache.flink.table.api.scala._
+import org.apache.flink.table.api.bridge.scala.StreamTableEnvironment
+//import org.apache.flink.table.api.scala._
 
 
 /**
@@ -22,7 +22,7 @@ import org.apache.flink.table.api.scala._
   * \* Date: 2020/7/23
   * \* Time: 18:27
   * \* To change this template use File | Settings | File Templates.
-  * \* Description: 
+  * \* Description:
   * \*/
 object FlinkScheduleApp_Tb {
   def main(args: Array[String]): Unit = {
@@ -69,8 +69,9 @@ object FlinkScheduleApp_Tb {
     val dyGoodsSourceDataStream = env.addSource(dyGoodsConsumer)
     println("start data process")
     /** data transform */
-    val dyAnchorDataStream = FlinkStreamMap.analysisDyAnchorKafkaStream(dyAnchorSourceDataStream).assignTimestampsAndWatermarks(new DyAnchorExtractor).toTable(tEnv)
-    val dyGoodsDataStream = FlinkStreamMap.analysisDyGoodsKafkaStream(dyGoodsSourceDataStream).assignTimestampsAndWatermarks(new DyGoodsExtractor).toTable(tEnv)
+    val dyAnchorDataStream = FlinkStreamMap.analysisDyAnchorKafkaStream(dyAnchorSourceDataStream).assignTimestampsAndWatermarks(new DyAnchorExtractor)
+
+    val dyGoodsDataStream = FlinkStreamMap.analysisDyGoodsKafkaStream(dyGoodsSourceDataStream).assignTimestampsAndWatermarks(new DyGoodsExtractor)
     /**temple table*/
     val ksAdapter = KsAdapter.transGoodsInfo(dyAnchorDataStream,dyGoodsDataStream,tEnv)
 
@@ -82,7 +83,6 @@ object FlinkScheduleApp_Tb {
     //sink config
 //    val dyAnchorStreamingFileSink = StreamingFileSink.forBulkFormat(new Path(ConfigTool.anchor_basic_path), ParquetAvroWriters.forReflectRecord(classOf[AnchorResultBean])).withBucketAssigner(new DateTimeBucketAssigner[AnchorResultBean]("yyyyMMdd")).build()
 //    val dyGoodsStreamingFileSink = StreamingFileSink.forBulkFormat(new Path(ConfigTool.goods_info_path), ParquetAvroWriters.forReflectRecord(classOf[GoodsResultBean])).withBucketAssigner(new DateTimeBucketAssigner[GoodsResultBean]("yyyyMMdd")).build()
-
     //    add sink
 //    anchorRs.toAppendStream[AnchorResultBean].print()//批转流
     println("down")
