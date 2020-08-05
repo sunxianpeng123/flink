@@ -23,14 +23,15 @@ object KeyValueValueState {
     val keyStream = env.fromElements((1L, 3L), (1L, 5L),
       (1L, 7L), (2L, 4L),
       (2L, 2L), (2L, 5L))
-      .keyBy(0)
+      .keyBy(_._1)
+    //      .keyBy(0)
     //keyStream.print()
 
     val result = keyStream.flatMap(new CountWindowAverageWithValueState())
     result.print()
-//    输出结果
-//    6> (1,5.0)
-//    8> (2,3.6666666666666665)
+    //    输出结果
+    //    6> (1,5.0)
+    //    8> (2,3.6666666666666665)
     env.execute("ExampleManagedState")
   }
 }
@@ -53,7 +54,7 @@ class CountWindowAverageWithValueState extends RichFlatMapFunction[(Long, Long),
     // 拿到当前的 key 的状态值
     var currentState = countAndSum.value
     // 如果状态值还没有初始化，则初始化
-   if (currentState == null) currentState = (0L, 0L)
+    if (currentState == null) currentState = (0L, 0L)
     // 更新状态值中的元素的个数, 更新状态值中的总值
     val count = currentState._1 + 1
     val sum = currentState._2 + input._2
@@ -62,9 +63,9 @@ class CountWindowAverageWithValueState extends RichFlatMapFunction[(Long, Long),
     countAndSum.update(currentState)
     // 判断，如果当前的 key 出现了 3 次，则需要计算平均值，并且输出
     if (currentState._1 >= 3) {
-//      val keyStream = env.fromElements((1L, 3L), (1L, 5L),
-//      (1L, 7L), (2L, 4L),
-//      (2L, 2L), (2L, 5L))
+      //      val keyStream = env.fromElements((1L, 3L), (1L, 5L),
+      //      (1L, 7L), (2L, 4L),
+      //      (2L, 2L), (2L, 5L))
       //此处除法会保留整数
       val avg = currentState._2.toDouble / currentState._1
       // 输出 key 及其对应的平均值

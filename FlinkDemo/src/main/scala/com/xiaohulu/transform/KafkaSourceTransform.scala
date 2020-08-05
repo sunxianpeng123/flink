@@ -255,7 +255,7 @@ object KafkaSourceTransform {
     val resStream = goods.map(a => {
       GoodsTrans(a.promotion_id, a.room_id, a.live_id, a.sales_number, a.min_price, a.timestamp.toLong, a.date)
     }).uid("s11")
-      //.assignTimestampsAndWatermarks(new MyPeriodicWatermark)
+//      .assignTimestampsAndWatermarks(new MyPeriodicWatermark)
       .assignTimestampsAndWatermarks(new BoundedOutOfOrdernessTimestampExtractor[GoodsTrans](Time.seconds(5)) {
       override def extractTimestamp(element: GoodsTrans): Long = element.timeStamp * 1000L //毫秒
     }).uid("s12")
@@ -265,12 +265,12 @@ object KafkaSourceTransform {
       }).uid("s13")
       //.keyBy("promotionId","roomId","liveId")
       .keyBy(_._1)
-      //.timeWindow(Time.days(2),Time.minutes(1))         //服务器
+      //.timeWindow(Time.days(2),Time.minutes(1))//服务器
       .timeWindow(Time.minutes(10), Time.minutes(1)) //本地
       // .process(new MyKafProcessWindowFunction2)
       .reduce((a, b) => {
       var startTime = a._4
-      var incr = a._6
+      var incr = a._6 //增量
       var befSal = a._2 //上一分钟的销量
       var salesNumber = a._2
       var timeStamp = a._4
