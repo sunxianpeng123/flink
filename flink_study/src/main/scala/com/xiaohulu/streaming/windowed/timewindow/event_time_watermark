@@ -152,14 +152,24 @@
                  所以filnk通过WatermarkStrategy.withIdleness()方法允许用户在配置的时间内（即超时时间内）没有记录到达时将一个流标记为空闲。这样就意味着下游的数据不需要等待水印的到来。
                  当下次有水印生成并发射到下游的时候，这个数据流重新变成活跃状态。
                  通过下面的代码来实现对于空闲数据流的处理
-
                      WatermarkStrategy
                              .<Tuple2<Long, String>>forBoundedOutOfOrderness(Duration.ofSeconds(20))
                              .withIdleness(Duration.ofMinutes(1));
 
+        （5）每个 Kafka 分区一个时间戳
+                当使用Apache Kafka作为数据源时，每个Kafka分区可能都有一个简单的事件时间模式(升序时间戳或有界的外部长度)。
+                然而，当使用来自Kafka的流时，常常会并行使用多个分区，交叉使用来自分区的事件并破坏每个分区的模式(这是Kafka客户端工作的固有方式)。
 
+                例如，如果每个Kafka分区的事件时间戳是严格升序的，那么使用升序时间戳水印生成器生成每个分区的水印将得到完美的整体水印。
+                注意，在示例中我们没有提供TimestampAssigner，而是使用Kafka记录本身的时间戳。
 
+                下面的插图展示了如何使用每个kafka分区的水印生成，以及在这种情况下水印是如何通过流数据流传播的。
+                    val kafkaSource = new FlinkKafkaConsumer[MyType]("myTopic", schema, props)
+                    kafkaSource.assignTimestampsAndWatermarks(
+                      WatermarkStrategy
+                        .forBoundedOutOfOrderness(Duration.ofSeconds(20)))
 
+                    val stream: DataStream[MyType] = env.addSource(kafkaSource)
 
 
 
