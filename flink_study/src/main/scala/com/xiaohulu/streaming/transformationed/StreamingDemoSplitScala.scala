@@ -32,6 +32,7 @@ object StreamingDemoSplitScala {
       }
     })
 
+
     val evenStream = splitStream.select("even")
 
     evenStream.print().setParallelism(1)
