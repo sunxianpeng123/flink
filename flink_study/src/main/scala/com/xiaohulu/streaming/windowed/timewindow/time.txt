@@ -1,4 +1,4 @@
-1、Flink 中几种 Time 详解
+1、Apache Flink的时间类型
     Flink 在流程序中支持不同的 Time 概念，就比如有 Processing Time、Event Time 和 Ingestion Time。
 
     （1）Processing Time 是指事件被处理时机器的系统时间。

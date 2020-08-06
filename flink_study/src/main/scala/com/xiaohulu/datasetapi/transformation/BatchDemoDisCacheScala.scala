@@ -19,22 +19,23 @@ object BatchDemoDisCacheScala {
 
 
     //1:注册文件
-    env.registerCachedFile("d:\\data\\file\\a.txt","b.txt")
+    env.registerCachedFile("d:\\data\\file\\a.txt", "b.txt")
 
-    val data = env.fromElements("a","b","c","d")
+    val data = env.fromElements("a", "b", "c", "d")
 
-    val result = data.map(new RichMapFunction[String,String] {
+    val result = data.map(new RichMapFunction[String, String] {
 
       override def open(parameters: Configuration): Unit = {
         super.open(parameters)
         val myFile = getRuntimeContext.getDistributedCache.getFile("b.txt")
         val lines = FileUtils.readLines(myFile)
         val it = lines.iterator()
-        while (it.hasNext){
+        while (it.hasNext) {
           val line = it.next();
-          println("line:"+line)
+          println("line:" + line)
         }
       }
+
       override def map(value: String) = {
         value
       }
