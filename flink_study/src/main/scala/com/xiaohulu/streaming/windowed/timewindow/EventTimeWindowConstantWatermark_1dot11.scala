@@ -57,20 +57,5 @@ object EventTimeWindowConstantWatermark_1dot11 {
   }
 }
 
-class MyselfPeriodWatermarkDemo extends WatermarkStrategy[(String, Long)]() {
-  override def createWatermarkGenerator(context: WatermarkGeneratorSupplier.Context) = {
-    new WatermarkGenerator[(String, Long)] {
-      var maxTimestamp: Long = _
-      var delay = 3000L
-
-      //onPeriodicEmit : 如果数据量比较大的时候，我们每条数据都生成一个水印的话，会影响性能，所以这里还有一个周期性生成水印的方法。这个水印的生成周期可以这样设置：env.getConfig().setAutoWatermarkInterval(5000L);
-      override def onPeriodicEmit(watermarkOutput: WatermarkOutput) = watermarkOutput.emitWatermark(new Watermark(maxTimestamp - delay))
-
-      //onEvent ：每个元素都会调用这个方法，如果我们想依赖每个元素生成一个水印，然后发射到下游(可选，就是看是否用output来收集水印)，我们可以实现这个方法.
-      override def onEvent(t: (String, Long), l: Long, watermarkOutput: WatermarkOutput) = {
-        maxTimestamp = Math.max(maxTimestamp, t._2)
-      }
-    }
-  }
-}
+//
 
