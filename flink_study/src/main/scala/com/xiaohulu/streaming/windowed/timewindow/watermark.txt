@@ -62,11 +62,19 @@
     要解决这个问题我们还需要先了解一下EventTime window是如何触发的？
     EventTime window 计算条件是当Window计算的Timer时间戳 小于等于 当前系统的Watermak的时间戳时候进行计算。
 
-    （1）当Watermark的时间戳等于Event中携带的EventTime时候
+    （1）当Watermark的时间戳等于Event中携带的EventTime时候：
+            watermark 和 eventtime 的关系为 y = x （y：watermark， x：eventtime）
             这种情况是假设所有数据都准时到达时不会出现插座
     （2）如果想正确处理迟来的数据可以定义Watermark生成策略为 Watermark = EventTime -5s
+            watermark 和 eventtime 的关系为 y = x - 5 （y：watermark， x：eventtime）
+            上面正确处理的根源是我们采取了延迟触发 window 计算 的方式正确处理了 Late Event. 与此同时，我们发现window的延时触发计算，也导致了下游的LATENCY变大，本例子中下游得到window的结果就延迟了5s.
 
+6、多流的Watermark处理
+    在实际的流计算中往往一个job中会处理多个Source的数据，对Source的数据进行GroupBy分组，那么来自不同Source的相同key值会shuffle到同一个处理节点，并携带各自的Watermark，
+    Apache Flink内部要保证Watermark要保持单调递增，多个Source的Watermark汇聚到一起时候可能不是单调自增的，这样的情况Apache Flink内部是如何处理的呢？如下图所示：
 
+    Apache Flink内部实现每一个边上只能有一个递增的Watermark， 当出现多流携带Eventtime汇聚到一起(GroupBy or Union)时候，
+    Apache Flink会选择所有流入的Eventtime中最小的一个向下游流出。从而保证watermark的单调递增和保证数据的完整性.如下图:
 
 
 

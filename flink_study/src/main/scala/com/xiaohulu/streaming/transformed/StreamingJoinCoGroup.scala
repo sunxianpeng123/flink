@@ -1,4 +1,4 @@
-package com.xiaohulu.streaming.transformationed
+package com.xiaohulu.streaming.transformed
 
 import java.lang
 import java.time.Duration

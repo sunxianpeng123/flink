@@ -1,4 +1,4 @@
-package com.xiaohulu.datasetapi.transformation
+package com.xiaohulu.datasetapi.transformaed
 
 import org.apache.flink.api.common.functions.RichMapFunction
 import org.apache.flink.api.scala.ExecutionEnvironment

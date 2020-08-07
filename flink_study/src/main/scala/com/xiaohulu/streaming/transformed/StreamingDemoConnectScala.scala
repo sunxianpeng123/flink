@@ -1,13 +1,12 @@
-package com.xiaohulu.streaming.transformationed
+package com.xiaohulu.streaming.transformed
 
 import com.xiaohulu.streaming.customsource.MyNoParallelSourceScala
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
-import org.apache.flink.streaming.api.windowing.time.Time
 /**
   * Created by xuwei.tech on 2018/10/23.
   */
-object StreamingDemoUnionScala {
+object StreamingDemoConnectScala {
 
   def main(args: Array[String]): Unit = {
 
@@ -18,19 +17,18 @@ object StreamingDemoUnionScala {
     val text1 = env.addSource(new MyNoParallelSourceScala)
     val text2 = env.addSource(new MyNoParallelSourceScala)
 
+    val text2_str = text2.map("str" + _)
 
-    val unionall = text1.union(text2)
+    val connectedStreams = text1.connect(text2_str)
 
-    val sum = unionall.map(line=>{
-      println("接收到的数据："+line)
-      line
-    }).timeWindowAll(Time.seconds(2)).sum(0)
-
-    sum.print().setParallelism(1)
+    val result = connectedStreams.map(line1 => {
+      line1
+    }, line2 => {
+      line2
+    })
+    result.print().setParallelism(1)
 
     env.execute("StreamingDemoWithMyNoParallelSourceScala")
-
-
 
   }
 
