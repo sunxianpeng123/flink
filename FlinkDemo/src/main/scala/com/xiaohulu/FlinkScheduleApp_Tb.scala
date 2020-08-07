@@ -73,7 +73,7 @@ object FlinkScheduleApp_Tb {
 
     val dyGoodsDataStream = FlinkStreamMap.analysisDyGoodsKafkaStream(dyGoodsSourceDataStream).assignTimestampsAndWatermarks(new DyGoodsExtractor)
     /**temple table*/
-    val ksAdapter = KsAdapter.transGoodsInfo(dyAnchorDataStream,dyGoodsDataStream,tEnv)
+
 
 
 

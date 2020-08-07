@@ -1,7 +1,8 @@
 package com.xiaohulu.transform.windowFunction
 
+import com.xiaohulu.bean. GoodsPromotionAggBean
 import com.xiaohulu.bean.analysisResultBean.GoodsResultBean
-import com.xiaohulu.bean.flinkMapBean.{GoodsPromotionBean, GoodsSaleNumBean}
+import com.xiaohulu.bean.flinkMapBean.GoodsPromotionBean
 import org.apache.flink.api.common.functions.AggregateFunction
 
 /**
@@ -12,12 +13,13 @@ import org.apache.flink.api.common.functions.AggregateFunction
   * \* To change this template use File | Settings | File Templates.
   * \* Description:
   * \*/
-case class AccumulatorBean(platform_id: String, promotion_id: String, max_seckill_min_price: Double, min_min_price: Double, max_coupon: Double, max_promote_remark: String)
 
-//case class ResultBean(platform_id: String, promotion_id: String, mp: Double)
 
-class GoodsPromotionAggregate extends AggregateFunction[GoodsResultBean, AccumulatorBean, GoodsPromotionBean] {
-  override def add(in: GoodsResultBean, acc: AccumulatorBean) = {
+/**
+  * 统计窗口下，货物的 如下字段的 最大值或者最小值
+  */
+class GoodsPromotionAggregate extends AggregateFunction[GoodsResultBean, GoodsPromotionAggBean, GoodsPromotionBean] {
+  override def add(in: GoodsResultBean, acc: GoodsPromotionAggBean) = {
     var max_seckill_min_price = 0.0
     var min_min_price = 0.0
     var max_coupon = 0.0
@@ -27,13 +29,12 @@ class GoodsPromotionAggregate extends AggregateFunction[GoodsResultBean, Accumul
     if (in.coupon > acc.max_coupon) max_coupon = in.coupon
     if (in.promote_remark > acc.max_promote_remark) max_promote_remark = in.promote_remark
 
-
-    AccumulatorBean(in.platform_id, in.promotion_id, max_seckill_min_price, min_min_price, max_coupon, max_promote_remark)
+    GoodsPromotionAggBean(in.platform_id, in.promotion_id, max_seckill_min_price, min_min_price, max_coupon, max_promote_remark)
   }
 
-  override def createAccumulator() = AccumulatorBean("", "", 0.0, 0.0, 0.0, "")
+  override def createAccumulator() = GoodsPromotionAggBean("", "", 0.0, 0.0, 0.0, "")
 
-  override def getResult(acc: AccumulatorBean) = {
+  override def getResult(acc: GoodsPromotionAggBean) = {
     //查看满减策略是否符合标准
     val standardArray = regexStandard(acc.max_promote_remark)
     val standard = standardArray(0) * 100.0
@@ -52,7 +53,7 @@ class GoodsPromotionAggregate extends AggregateFunction[GoodsResultBean, Accumul
     goodsPromotionBean
   }
 
-  override def merge(acc: AccumulatorBean, acc1: AccumulatorBean) = {
+  override def merge(acc: GoodsPromotionAggBean, acc1: GoodsPromotionAggBean) = {
     var max_seckill_min_price = 0.0
     var min_min_price = 0.0
     var max_coupon = 0.0
@@ -61,9 +62,14 @@ class GoodsPromotionAggregate extends AggregateFunction[GoodsResultBean, Accumul
     if (acc.min_min_price < acc1.min_min_price) min_min_price = acc.min_min_price
     if (acc.max_coupon > acc1.max_coupon) max_coupon = acc.max_coupon
     if (acc.max_promote_remark > acc1.max_promote_remark) max_promote_remark = acc.max_promote_remark
-    AccumulatorBean(acc.platform_id, acc.promotion_id, max_seckill_min_price, min_min_price, max_coupon, max_promote_remark)
+    GoodsPromotionAggBean(acc.platform_id, acc.promotion_id, max_seckill_min_price, min_min_price, max_coupon, max_promote_remark)
   }
 
+  /**
+    * 正则表达式匹配满减优惠策略
+    * @param promote_remark_max
+    * @return
+    */
   def regexStandard(promote_remark_max: String): Array[Double] = {
     var arr: Array[Double] = Array.empty
     val pattern = "[\\d]+\\.*[\\d]*".r

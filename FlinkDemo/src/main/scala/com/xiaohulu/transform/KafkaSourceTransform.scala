@@ -255,7 +255,7 @@ object KafkaSourceTransform {
     val resStream = goods.map(a => {
       GoodsTrans(a.promotion_id, a.room_id, a.live_id, a.sales_number, a.min_price, a.timestamp.toLong, a.date)
     }).uid("s11")
-//      .assignTimestampsAndWatermarks(new MyPeriodicWatermark)
+      //      .assignTimestampsAndWatermarks(new MyPeriodicWatermark)
       .assignTimestampsAndWatermarks(new BoundedOutOfOrdernessTimestampExtractor[GoodsTrans](Time.seconds(5)) {
       override def extractTimestamp(element: GoodsTrans): Long = element.timeStamp * 1000L //毫秒
     }).uid("s12")

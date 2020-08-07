@@ -1,7 +1,7 @@
 package com.xiaohulu.transform.windowFunction
 
+import com.xiaohulu.bean.GoodsSaleNumBean
 import com.xiaohulu.bean.analysisResultBean.GoodsResultBean
-import com.xiaohulu.bean.flinkMapBean.GoodsSaleNumBean
 import org.apache.flink.api.common.functions.AggregateFunction
 
 /**
@@ -12,21 +12,23 @@ import org.apache.flink.api.common.functions.AggregateFunction
   * \* To change this template use File | Settings | File Templates.
   * \* Description:
   * \*/
-//case class GoodsSaleNumBean( platform_id :String , room_id: String , promotion_id: String , live_id: String , timestamp: Long , sales_number: Long )
-
+/**
+  * 统计货物数据，每个窗口下最大timestamp 的 货物的 sales_number
+  */
 class GoodsSalesNumAggregate extends AggregateFunction[GoodsResultBean, GoodsSaleNumBean, GoodsSaleNumBean] with Serializable {
   override def add(in: GoodsResultBean, acc: GoodsSaleNumBean) = {
     if (acc.timestamp < in.timestamp.toLong) {
+      acc.platform_id = in.platform_id
       acc.room_id = in.room_id
       acc.live_id = in.live_id
       acc.promotion_id = in.promotion_id
-      acc.sales_number = in.sales_number
       acc.timestamp = in.timestamp.toLong
+      acc.sales_number = in.sales_number
     }
     acc
   }
 
-  override def createAccumulator() = new GoodsSaleNumBean
+  override def createAccumulator() = GoodsSaleNumBean("", "", "", "", 0L, 0)
 
   override def getResult(acc: GoodsSaleNumBean) = acc
 

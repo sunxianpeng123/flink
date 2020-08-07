@@ -1,6 +1,7 @@
 package com.xiaohulu.test
 
-import com.xiaohulu.bean.flinkMapBean.GoodsSaleNumBean
+import com.xiaohulu.bean.GoodsSaleNumBean
+
 
 /**
   * \* Created with IntelliJ IDEA.
@@ -12,9 +13,6 @@ import com.xiaohulu.bean.flinkMapBean.GoodsSaleNumBean
   * \*/
 object TestOther {
   def main(args: Array[String]): Unit = {
-
-    val g = new GoodsSaleNumBean
-    println(g.timestamp)
 
 
     var num = 100

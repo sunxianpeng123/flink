@@ -3,9 +3,8 @@ package com.xiaohulu.transform.extractor
 import java.text.SimpleDateFormat
 import java.util.Date
 
-import com.xiaohulu.bean.analysisResultBean.GoodsResultBean
-import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks
-import org.apache.flink.streaming.api.watermark.Watermark
+import com.xiaohulu.bean.analysisResultBean.{AnchorResultBean, GoodsResultBean}
+import org.apache.flink.api.common.eventtime._
 
 /**
   * \* Created with IntelliJ IDEA.
@@ -15,27 +14,21 @@ import org.apache.flink.streaming.api.watermark.Watermark
   * \* To change this template use File | Settings | File Templates.
   * \* Description: 时间戳提取器，水印
   * \*/
-class DyGoodsExtractor extends AssignerWithPeriodicWatermarks[GoodsResultBean] with Serializable{
-    // 当 水印时间 大于等于 窗口的结束时间，开始触发窗口的计算。
-    // 这里的水印使用的是系统时间，精确到毫秒
-    // 所以事件时间的基准必须和水印时间一致，也是毫秒级时间戳
-    override def getCurrentWatermark = {
-      new Watermark(System.currentTimeMillis - 5000)
+class DyGoodsExtractor extends WatermarkStrategy[GoodsResultBean] with Serializable {
+  override def createWatermarkGenerator(context: WatermarkGeneratorSupplier.Context) = {
+    new WatermarkGenerator[GoodsResultBean] {
+      var maxTimestamp: Long = _
+      var delay = 3000L
+
+      //onPeriodicEmit : 如果数据量比较大的时候，我们每条数据都生成一个水印的话，会影响性能，所以这里还有一个周期性生成水印的方法。
+      // 这个水印的生成周期可以这样设置：env.getConfig().setAutoWatermarkInterval(5000L);
+      override def onPeriodicEmit(output: WatermarkOutput) = output.emitWatermark(new Watermark(maxTimestamp - delay))
+
+      //onEvent ：每个元素都会调用这个方法，如果我们想依赖每个元素生成一个水印，然后发射到下游(可选，就是看是否用output来收集水印)，我们可以实现这个方法.
+      override def onEvent(event: GoodsResultBean, eventTimestamp: Long, output: WatermarkOutput) = {
+        maxTimestamp = Math.max(maxTimestamp, event.timestamp.toLong)
+      }
     }
-    override def extractTimestamp(element: GoodsResultBean, previousElementTimestamp: Long) = {
-      // 自动获取当前时间整分钟的时间戳，yyyy-MM-dd HH:mm:00
-      val baseTimeStringType = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date) + ":00"
-      val baseTimeDateType = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(baseTimeStringType)
-
-      // 计算事件的产生时间
-      val baseTimestamp = baseTimeDateType.getTime
-      val offsetMillis = 1000 * element.timestamp.toLong
-      val newEventTimestamp = baseTimestamp.toLong + offsetMillis
-
-//      println(s"当前时间整分钟为$baseTimeStringType, 事件延迟的毫秒数为$offsetMillis," + s"事件产生时间为$newEventTimestamp，当前毫秒数为" + System.currentTimeMillis)
-
-      newEventTimestamp
-
   }
 }
 
