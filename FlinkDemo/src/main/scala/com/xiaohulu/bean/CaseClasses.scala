@@ -29,7 +29,7 @@ case class AnchorTrans(roomId: String, liveId: String, totalViewer: Int, onlineV
   * @param timestamp
   * @param sales_number
   */
-case class GoodsSaleNumBean(var platform_id: String, var room_id: String, var promotion_id: String, var live_id: String, var timestamp: Long, var sales_number: Int) extends Serializable
+case class GoodsSaleNumTrans(var platform_id: String, var room_id: String, var promotion_id: String, var live_id: String, var timestamp: Long, var sales_number: Int) extends Serializable
 
 /**
   * 统计窗口下，货物的 如下字段的 最大值或者最小值，该class 为 返回结果
@@ -41,6 +41,21 @@ case class GoodsSaleNumBean(var platform_id: String, var room_id: String, var pr
   * @param max_coupon
   * @param max_promote_remark
   */
-case class GoodsPromotionAggBean(platform_id: String, promotion_id: String, max_seckill_min_price: Double, min_min_price: Double, max_coupon: Double, max_promote_remark: String) extends Serializable
+case class GoodsPromotionAggTrans(platform_id: String, promotion_id: String, max_seckill_min_price: Double, min_min_price: Double, max_coupon: Double, max_promote_remark: String) extends Serializable
 
+/**
+  *统计窗口下，货物的 销量，该class 为 返回结果
+  * @param platform_id
+  * @param promotion_id
+  * @param mp
+  */
+case class GoodsPromotionTrans(var platform_id: String, var promotion_id: String, var mp: Double)
 
+/**
+  *
+  * @param platform_id
+  * @param room_id
+  * @param max_online_viewer
+  * @param max_total_viewer
+  */
+case class AnchorViewerTrans (var platform_id: String,var room_id: String ,var max_online_viewer: Long ,var max_total_viewer: Long)

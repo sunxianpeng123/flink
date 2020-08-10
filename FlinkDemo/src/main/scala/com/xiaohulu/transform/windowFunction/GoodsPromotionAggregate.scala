@@ -1,8 +1,7 @@
 package com.xiaohulu.transform.windowFunction
 
-import com.xiaohulu.bean. GoodsPromotionAggBean
+import com.xiaohulu.bean.{GoodsPromotionAggTrans, GoodsPromotionTrans}
 import com.xiaohulu.bean.analysisResultBean.GoodsResultBean
-import com.xiaohulu.bean.flinkMapBean.GoodsPromotionBean
 import org.apache.flink.api.common.functions.AggregateFunction
 
 /**
@@ -18,8 +17,8 @@ import org.apache.flink.api.common.functions.AggregateFunction
 /**
   * 统计窗口下，货物的 如下字段的 最大值或者最小值
   */
-class GoodsPromotionAggregate extends AggregateFunction[GoodsResultBean, GoodsPromotionAggBean, GoodsPromotionBean] {
-  override def add(in: GoodsResultBean, acc: GoodsPromotionAggBean) = {
+class GoodsPromotionAggregate extends AggregateFunction[GoodsResultBean, GoodsPromotionAggTrans, GoodsPromotionTrans] {
+  override def add(in: GoodsResultBean, acc: GoodsPromotionAggTrans) = {
     var max_seckill_min_price = 0.0
     var min_min_price = 0.0
     var max_coupon = 0.0
@@ -29,12 +28,12 @@ class GoodsPromotionAggregate extends AggregateFunction[GoodsResultBean, GoodsPr
     if (in.coupon > acc.max_coupon) max_coupon = in.coupon
     if (in.promote_remark > acc.max_promote_remark) max_promote_remark = in.promote_remark
 
-    GoodsPromotionAggBean(in.platform_id, in.promotion_id, max_seckill_min_price, min_min_price, max_coupon, max_promote_remark)
+    GoodsPromotionAggTrans(in.platform_id, in.promotion_id, max_seckill_min_price, min_min_price, max_coupon, max_promote_remark)
   }
 
-  override def createAccumulator() = GoodsPromotionAggBean("", "", 0.0, 0.0, 0.0, "")
+  override def createAccumulator() = GoodsPromotionAggTrans("", "", 0.0, 0.0, 0.0, "")
 
-  override def getResult(acc: GoodsPromotionAggBean) = {
+  override def getResult(acc: GoodsPromotionAggTrans) = {
     //查看满减策略是否符合标准
     val standardArray = regexStandard(acc.max_promote_remark)
     val standard = standardArray(0) * 100.0
@@ -45,15 +44,11 @@ class GoodsPromotionAggregate extends AggregateFunction[GoodsResultBean, GoodsPr
     if (mp > standard) mp = mp - discounts
     //优惠券
     if (mp > acc.max_coupon) mp = mp - acc.max_coupon
-//    汇总结果
-    val goodsPromotionBean = new GoodsPromotionBean
-    goodsPromotionBean.platform_id = acc.platform_id
-    goodsPromotionBean.promotion_id = acc.promotion_id
-    goodsPromotionBean.mp = mp
-    goodsPromotionBean
+//    汇总结果GoodsPromotionTrans
+    GoodsPromotionTrans(acc.platform_id,acc.promotion_id,mp)
   }
 
-  override def merge(acc: GoodsPromotionAggBean, acc1: GoodsPromotionAggBean) = {
+  override def merge(acc: GoodsPromotionAggTrans, acc1: GoodsPromotionAggTrans) = {
     var max_seckill_min_price = 0.0
     var min_min_price = 0.0
     var max_coupon = 0.0
@@ -62,7 +57,7 @@ class GoodsPromotionAggregate extends AggregateFunction[GoodsResultBean, GoodsPr
     if (acc.min_min_price < acc1.min_min_price) min_min_price = acc.min_min_price
     if (acc.max_coupon > acc1.max_coupon) max_coupon = acc.max_coupon
     if (acc.max_promote_remark > acc1.max_promote_remark) max_promote_remark = acc.max_promote_remark
-    GoodsPromotionAggBean(acc.platform_id, acc.promotion_id, max_seckill_min_price, min_min_price, max_coupon, max_promote_remark)
+    GoodsPromotionAggTrans(acc.platform_id, acc.promotion_id, max_seckill_min_price, min_min_price, max_coupon, max_promote_remark)
   }
 
   /**

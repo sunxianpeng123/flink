@@ -1,6 +1,6 @@
 package com.xiaohulu.transform.windowFunction
 
-import com.xiaohulu.bean.GoodsSaleNumBean
+import com.xiaohulu.bean.GoodsSaleNumTrans
 import com.xiaohulu.bean.analysisResultBean.GoodsResultBean
 import org.apache.flink.api.common.functions.AggregateFunction
 
@@ -15,8 +15,9 @@ import org.apache.flink.api.common.functions.AggregateFunction
 /**
   * 统计货物数据，每个窗口下最大timestamp 的 货物的 sales_number
   */
-class GoodsSalesNumAggregate extends AggregateFunction[GoodsResultBean, GoodsSaleNumBean, GoodsSaleNumBean] with Serializable {
-  override def add(in: GoodsResultBean, acc: GoodsSaleNumBean) = {
+class GoodsSalesNumAggregate extends AggregateFunction[GoodsResultBean, GoodsSaleNumTrans, GoodsSaleNumTrans] with Serializable {
+
+  override def add(in: GoodsResultBean, acc: GoodsSaleNumTrans) = {
     if (acc.timestamp < in.timestamp.toLong) {
       acc.platform_id = in.platform_id
       acc.room_id = in.room_id
@@ -28,10 +29,10 @@ class GoodsSalesNumAggregate extends AggregateFunction[GoodsResultBean, GoodsSal
     acc
   }
 
-  override def createAccumulator() = GoodsSaleNumBean("", "", "", "", 0L, 0)
+  override def createAccumulator() = GoodsSaleNumTrans("", "", "", "", 0L, 0)
 
-  override def getResult(acc: GoodsSaleNumBean) = acc
+  override def getResult(acc: GoodsSaleNumTrans) = acc
 
-  override def merge(acc: GoodsSaleNumBean, acc1: GoodsSaleNumBean) = if (acc.timestamp > acc1.timestamp) acc else acc1
+  override def merge(acc: GoodsSaleNumTrans, acc1: GoodsSaleNumTrans) = if (acc.timestamp > acc1.timestamp) acc else acc1
 }
 

@@ -57,24 +57,27 @@ object FlinkScheduleApp_Stream {
       .timeWindow(Time.minutes(10), Time.minutes(1))
       .aggregate(new GoodsPromotionAggregate)
 
+//    dyGoodsPromotionWindowStream.getSideOutput(new OutputTag[(String,Int,Long)])
     //tEnv.createTemporaryView("goods_sales_number_tb", dyGoodsWindowStream, 'platform_id,'room_id, 'promotion_id, 'live_id, 'timestamp, 'sales_number)
     val goods_sales_number_tb = "goods_sales_number_tb"
     val goods_promotion_agg_tb = "goods_promotion_agg_tb"
     tEnv.createTemporaryView(goods_sales_number_tb, dyGoodsWindowStream)
-    tEnv.createTemporaryView(goods_promotion_agg_tb, dyGoodsWindowStream)
+    tEnv.createTemporaryView(goods_promotion_agg_tb, dyGoodsPromotionWindowStream)
+//    select g.platform_id,g.room_id,g.promotion_id,g.live_id,g.timestamp,g.sales_number,a.mp from(
     val joinSql =
       s"""
         |select * from $goods_sales_number_tb g
-        | left outer join $goods_promotion_agg_tb a
+        | full outer join $goods_promotion_agg_tb a
         | on g.platform_id = a.platform_id and g.promotion_id=a.promotion_id
       """.stripMargin
+
     /** 打印查询表的几种方法 */
     val r = tEnv.sqlQuery(joinSql)
     r.printSchema()
     r.toRetractStream[Row].print()
+
 //    val r2 = tEnv.executeSql(joinSql)
 //    r2.print()
-
     //  dyGoodsPromotionWindowStream.print()
     //    val dyGoodsWindowJoinStream = dyGoodsWindowStream.join(dyGoodsPromotionWindowStream).where(x=>(x.platform_id,x.promotion_id)).equalTo(y=>(y.platform_id,y.promotion_id))
     //      .window(SlidingEventTimeWindows.of(Time.seconds(5), Time.seconds(1)))
