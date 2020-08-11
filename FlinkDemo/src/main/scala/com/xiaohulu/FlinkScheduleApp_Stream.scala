@@ -50,7 +50,6 @@ object FlinkScheduleApp_Stream {
       .timeWindow(Time.minutes(10), Time.minutes(1)) //滑动窗口
       //.timeWindow(Time.minutes(10))//滚动窗口
       .aggregate(new GoodsSalesNumAggregate)
-
     //dyGoodsWindowStream.print()
     val dyGoodsPromotionWindowStream = dyGoodsDataStream
       .keyBy(_.promotion_id)
