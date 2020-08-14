@@ -45,6 +45,8 @@ object WatermarkDemo {
         )
     )
 
+
+
     val result = stream
       .map(e=>(e._1,1L))
       .keyBy(_._1)
