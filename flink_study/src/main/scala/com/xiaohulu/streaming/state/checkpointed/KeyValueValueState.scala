@@ -33,7 +33,9 @@ object KeyValueValueState {
     val fsPath = "file:///F:\\PythonProjects/checkpoints//fs/"
     val rocksdbPath = "file:///F:\\PythonProjects/checkpoints//rocksdb/"
 
+
     //env.setStateBackend(new MemoryStateBackend())
+    //false是否以同步的方式进行状态数据记录
     //env.setStateBackend(new FsStateBackend(fsPath, false))
     env.setStateBackend(new RocksDBStateBackend(rocksdbPath,false))
     val config = env.getCheckpointConfig

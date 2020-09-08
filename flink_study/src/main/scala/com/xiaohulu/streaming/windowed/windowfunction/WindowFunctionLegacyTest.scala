@@ -62,7 +62,7 @@ class UserDefineWindowFunction extends WindowFunction[(String, Int), String, Str
     val sdf = new SimpleDateFormat("HH:mm:ss")
     val start = sdf.format(window.getStart)
     val end = sdf.format(window.getEnd)
-    var maxTimestamp = sdf.format(window.maxTimestamp())
+    val maxTimestamp = sdf.format(window.maxTimestamp())
     println(s"key=$key,start:$start,end:$end,maxTimestamp:" + maxTimestamp)
     out.collect(s"$key,${input.map(_._2).sum}")
   }

@@ -28,7 +28,7 @@ object AggregateFunctionTest {
     import org.apache.flink.api.scala._
     val stream = env.fromCollection(Seq(("qh1", 100L),("qh1", 200L), ("qh1", 300L)))
 
-    val result = stream.keyBy(0)
+    val result = stream.keyBy(_._1)
       .countWindow(3)
       .aggregate(new AverageAggregate)
 

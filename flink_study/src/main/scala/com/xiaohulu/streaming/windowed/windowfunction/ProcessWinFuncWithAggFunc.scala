@@ -1,6 +1,7 @@
 package com.xiaohulu.streaming.windowed.windowfunction
 
 import org.apache.flink.api.common.functions.AggregateFunction
+import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.functions.source.SourceFunction
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.scala.function.ProcessWindowFunction
@@ -17,7 +18,7 @@ import org.apache.flink.util.Collector
   * \* Description:
   * \*/
 object ProcessWinFuncWithAggFunc {
-
+//TypeInformation.of()
   import org.apache.flink.api.scala._
 
   def main(args: Array[String]): Unit = {
@@ -45,7 +46,7 @@ object ProcessWinFuncWithAggFunc {
       .keyBy(_._1)
       //      stream.print()
       .timeWindow(Time.seconds(5))
-      .aggregate(new MyAggAverageAggregateWithAggFunc,new MyProcessWinFunctionWithAggFunc)
+      .aggregate(new MyAggAverageAggregateWithAggFunc, new MyProcessWinFunctionWithAggFunc)
 
     stream.print()
     env.execute("word count")

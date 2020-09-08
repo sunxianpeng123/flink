@@ -26,9 +26,7 @@ object BatchDemoBroadcastScala {
 
     //1.1处理需要广播的数据
     val tupleData = env.fromCollection(broadData)
-    val toBroadcastData = tupleData.map(tup => {
-      Map(tup._1 -> tup._2)
-    })
+    val toBroadcastData = tupleData.map(tup => {Map(tup._1 -> tup._2)})
 
     val text = env.fromElements("zs", "ls", "ww")
 

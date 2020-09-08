@@ -28,20 +28,20 @@ object StreamingWindowWatermarkScala {
     import org.apache.flink.api.scala._
 
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
-    env.getConfig.setAutoWatermarkInterval(5000)//默认为200ms，周期性watermark的时间间隔
+    env.getConfig.setAutoWatermarkInterval(5000) //默认为200ms，周期性watermark的时间间隔
 
     env.setParallelism(1)
 
-    val text = env.socketTextStream("hadoop100",port,'\n')
+    val text = env.socketTextStream("hadoop100", port, '\n')
 
-    val inputMap = text.map(line=>{
+    val inputMap = text.map(line => {
       val arr = line.split(",")
-      (arr(0),arr(1).toLong)
+      (arr(0), arr(1).toLong)
     })
 
     val waterMarkStream = inputMap.assignTimestampsAndWatermarks(new AssignerWithPeriodicWatermarks[(String, Long)] {
       var currentMaxTimestamp = 0L
-      var maxOutOfOrderness = 10000L// 最大允许的乱序时间是10s
+      var maxOutOfOrderness = 10000L // 最大允许的乱序时间是10s
 
       val sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
@@ -51,7 +51,7 @@ object StreamingWindowWatermarkScala {
         val timestamp = element._2
         currentMaxTimestamp = Math.max(timestamp, currentMaxTimestamp)
         val id = Thread.currentThread().getId
-        println("currentThreadId:"+id+",key:"+element._1+",eventtime:["+element._2+"|"+sdf.format(element._2)+"],currentMaxTimestamp:["+currentMaxTimestamp+"|"+ sdf.format(currentMaxTimestamp)+"],watermark:["+getCurrentWatermark().getTimestamp+"|"+sdf.format(getCurrentWatermark().getTimestamp)+"]")
+        println("currentThreadId:" + id + ",key:" + element._1 + ",eventtime:[" + element._2 + "|" + sdf.format(element._2) + "],currentMaxTimestamp:[" + currentMaxTimestamp + "|" + sdf.format(currentMaxTimestamp) + "],watermark:[" + getCurrentWatermark().getTimestamp + "|" + sdf.format(getCurrentWatermark().getTimestamp) + "]")
         timestamp
       }
     })
@@ -64,7 +64,7 @@ object StreamingWindowWatermarkScala {
         val keyStr = key.toString
         val arrBuf = ArrayBuffer[Long]()
         val ite = input.iterator
-        while (ite.hasNext){
+        while (ite.hasNext) {
           val tup2 = ite.next()
           arrBuf.append(tup2._2)
         }
@@ -73,7 +73,7 @@ object StreamingWindowWatermarkScala {
         Sorting.quickSort(arr)
 
         val sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        val result = keyStr + "," + arr.length + "," + sdf.format(arr.head) + "," + sdf.format(arr.last)+ "," + sdf.format(window.getStart) + "," + sdf.format(window.getEnd)
+        val result = keyStr + "," + arr.length + "," + sdf.format(arr.head) + "," + sdf.format(arr.last) + "," + sdf.format(window.getStart) + "," + sdf.format(window.getEnd)
         out.collect(result)
       }
     })
@@ -83,7 +83,6 @@ object StreamingWindowWatermarkScala {
     env.execute("StreamingWindowWatermarkScala")
 
   }
-
 
 
 }

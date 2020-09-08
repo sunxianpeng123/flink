@@ -60,7 +60,20 @@
 5、注意，Flink的核心代码目前使用Java实现的，而Java的很多类型与Scala的类型不太相同，比如List和Map。这里不再详细解释Java和Scala的数据类型的异同，但是开发者在使用Scala调用这些接口，比如状态的接口，需要注意将Java的类型转为Scala的类型。
         对于List和Map的转换，只需要需要引用import scala.collection.JavaConversions._，并在必要的地方添加后缀asScala或asJava来进行转换。此外，Scala和Java的空对象使用习惯不太相同，Java一般使用null表示空，Scala一般使用None。
 
+6、state生命周期
+      override def open(parameters: Configuration): Unit = {
+        val stateTtlConfig = StateTtlConfig
+    //      指定ttl时间为10秒
+          .newBuilder(Time.seconds(10))
+    //      指定ttl刷新时只对创建和写入操作有效
+          .setUpdateType(StateTtlConfig.UpdateType.OnCreateAndWrite)
+    //      指定状态可见性为永远不返回过期数据
+          .setStateVisibility(StateTtlConfig.StateVisibility.NeverReturnExpired).build()
 
+        val descriptor = new ListStateDescriptor[(Long, Long)]("average", createTypeInformation[(Long, Long)])
+        descriptor.enableTimeToLive(stateTtlConfig)
+        elementByKey = getRuntimeContext.getListState(descriptor)
+      }0
 
 
 

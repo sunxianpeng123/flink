@@ -29,7 +29,7 @@ object EventTimeWindowConstantWatermark_1dot11 {
     val stream = env.fromCollection(Seq(("qh1", 100L), ("qh1", 101L)))
       .assignTimestampsAndWatermarks(
         WatermarkStrategy.forBoundedOutOfOrderness[(String, Long)](
-          Duration.ofSeconds(3)
+          Duration.ofSeconds(3)//最长延时3秒
         )
           //上述我们讲了flink自带的两种水印生成策略，但是对于我们使用eventtime语义的时候，我们想从我们的自己的数据中抽取eventtime，这个就需要TimestampAssigner了.
           .withTimestampAssigner(new SerializableTimestampAssigner[(String, Long)] {

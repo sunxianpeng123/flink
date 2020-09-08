@@ -3,7 +3,8 @@ package com.xiaohulu.streaming.state.keyedstate
 import java.util.Collections
 
 import org.apache.flink.api.common.functions.RichFlatMapFunction
-import org.apache.flink.api.common.state.{ListState, ListStateDescriptor}
+import org.apache.flink.api.common.state.{ListState, ListStateDescriptor, StateTtlConfig}
+import org.apache.flink.api.common.time.Time
 import org.apache.flink.api.scala.createTypeInformation
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.shaded.curator4.org.apache.curator.shaded.com.google.common.collect.Lists
@@ -48,7 +49,16 @@ class CountWindowAverageWithListState extends RichFlatMapFunction[(Long, Long), 
   var elementByKey: ListState[(Long, Long)] = _
 
   override def open(parameters: Configuration): Unit = {
+    val stateTtlConfig = StateTtlConfig
+//      指定ttl时间为10秒
+      .newBuilder(Time.seconds(10))
+//      指定ttl刷新时只对创建和写入操作有效
+      .setUpdateType(StateTtlConfig.UpdateType.OnCreateAndWrite)
+//      指定状态可见性为永远不返回过期数据
+      .setStateVisibility(StateTtlConfig.StateVisibility.NeverReturnExpired).build()
+
     val descriptor = new ListStateDescriptor[(Long, Long)]("average", createTypeInformation[(Long, Long)])
+    descriptor.enableTimeToLive(stateTtlConfig)
     elementByKey = getRuntimeContext.getListState(descriptor)
   }
 
