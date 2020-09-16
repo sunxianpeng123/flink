@@ -26,15 +26,17 @@ object BatchDemoBroadcastScala {
 
     //1.1处理需要广播的数据
     val tupleData = env.fromCollection(broadData)
-    val toBroadcastData = tupleData.map(tup => {Map(tup._1 -> tup._2)})
+    val toBroadcastData = tupleData.map(tup => {
+      Map(tup._1 -> tup._2)
+    })
 
     val text = env.fromElements("zs", "ls", "ww")
 
     val result = text.map(new RichMapFunction[String, String] {
 
 
-      var listData: java.util.List[Map[String, Int]] = null
-      var allMap = Map[String, Int]()
+      var listData: java.util.List[Map[String, Int]] = _
+      var allMap: Map[String, Int] = Map[String, Int]()
 
       override def open(parameters: Configuration): Unit = {
         super.open(parameters)
@@ -47,7 +49,8 @@ object BatchDemoBroadcastScala {
       }
 
       override def map(value: String) = {
-        val age = allMap.get(value).get
+        allMap(value)
+        val age = allMap(value) //allMap.get(value).get
         value + "," + age
       }
     }).withBroadcastSet(toBroadcastData, "broadcastMapName")

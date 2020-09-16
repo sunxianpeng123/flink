@@ -58,7 +58,6 @@ object MySqlSinkApp {
     }
     )
 
-
     val dataStream = orginDataStream.map(x => {
       x.row_time = x.time
       val msgBean = new MessageBean
