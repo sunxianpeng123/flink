@@ -18,7 +18,9 @@ public class DBConnectUtil {
     public static Connection getConnection(String url, String user, String password) throws SQLException {
         Connection conn = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver");
+            String driver_old = "com.mysql.jdbc.Driver";
+            String driver_new = "com.mysql.cj.jdbc.Driver";
+            Class.forName(driver_new);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }

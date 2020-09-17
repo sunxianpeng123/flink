@@ -31,7 +31,8 @@ object Config {
   //表示一旦Flink程序被cancel后，会保留checkpoint数据，以便根据实际需要恢复到指定的checkpoint
   //env.getCheckpointConfig().enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
   //设置statebackend,将检查点保存在hdfs上面，默认保存在内存中。这里先保存到本地
-  val checkpoint_statebackend_path = "file:///exactly_once/checkpoint/"
+  val checkpoint_statebackend_path = "file:///F:\\ScalaProjects\\flink\\flink_study\\src\\main\\scala\\com\\xiaohulu\\excatly_once/checkpoint/"
+
   /**
     * Kafka config
     */
@@ -41,6 +42,13 @@ object Config {
   val kafka_topic = "www_request_log"
   //kafka分区自动发现周期
   val kafka_key_partition_discovery_interval_millis = "3000"
+  /**
+    * mysql config
+    */
+  val dbIpW = "192.168.120.158"
+  val dbUserW ="root"
+  val dbPasswordW = "1qaz@WSX3edc"
+  val dbPassportW = 3306
 
 }
 

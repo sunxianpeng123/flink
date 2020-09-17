@@ -7,10 +7,12 @@ import com.xiaohulu.excatly_once.bean.WWWBean
 import com.xiaohulu.streaming.sink.mysqlsink.MessageBean
 import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.runtime.state.filesystem.FsStateBackend
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode
 import org.apache.flink.streaming.api.environment.CheckpointConfig
 import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer, FlinkKafkaConsumerBase}
+import org.apache.flink.streaming.util.serialization.JSONKeyValueDeserializationSchema
 
 /**
   * \* Created with IntelliJ IDEA.
@@ -20,9 +22,11 @@ import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer, FlinkKaf
   * \* To change this template use File | Settings | File Templates.
   * \* Description: 消费kafka消息，sink(自定义)到mysql中，保证kafka to mysql的Exactly-Once
   * \*/
-@SuppressWarnings("all")
+
 object Kafka2MysqlExactlyOnceApp {
+
   import org.apache.flink.streaming.api.scala._
+
   def main(args: Array[String]): Unit = {
     /**
       * env
@@ -55,57 +59,18 @@ object Kafka2MysqlExactlyOnceApp {
     val kafkaProps = new Properties()
     kafkaProps.setProperty("bootstrap.servers", Config.kafka_broker)
     kafkaProps.setProperty("group.id", Config.kafka_group_id)
-
     kafkaProps.put(FlinkKafkaConsumerBase.KEY_PARTITION_DISCOVERY_INTERVAL_MILLIS, Config.kafka_key_partition_discovery_interval_millis)
-
-    val consumer = new FlinkKafkaConsumer[String](Config.kafka_topic, new SimpleStringSchema(), kafkaProps)
-    //加入kafka数据源
-    val transaction = env.addSource(consumer)
     println("start data process")
-
-    val orginDataStream = transaction.flatMap(line => {
-      var dbArr: Array[WWWBean] = null
-      val jsonParse = new JsonParser()
-      val gs = new Gson()
-      try {
-        val je = jsonParse.parse(line)
-        if (je.isJsonArray) {
-          dbArr = gs.fromJson(je, classOf[Array[WWWBean]])
-        } else {
-          val dbb = gs.fromJson(je, classOf[WWWBean])
-          dbArr = new Array[WWWBean](1)
-          dbArr(0) = dbb
-        }
-      }
-      catch {
-        case e: Exception => e.printStackTrace()
-      }
-      dbArr
-    })
-
-
-    val dataStream = orginDataStream.map(x => {
-      x.row_time = x.time
-      val msgBean = new MessageBean
-      msgBean.platform_id = x.time.toString
-      msgBean.room_id =x.time.toString
-      msgBean.from_id = x.xhlid
-      //msgBean.timestamp =x.time
-      msgBean.content=x.xhlid
-      //val date  = sdf.format(new Date(x.time.toLong * 1000))
-      //msgBean.date = date
-//      msgBean
-      (msgBean.platform_id,msgBean.room_id,msgBean.from_id,msgBean.content)
-    })
+    val consumer = new FlinkKafkaConsumer[ObjectNode](Config.kafka_topic, new JSONKeyValueDeserializationSchema(true), kafkaProps)
+    //加入kafka数据源
+    val sourceStream = env.addSource(consumer)
     //数据传输到下游
-    dataStream.addSink(new MySqlTwoPhaseCommitSink()).name("MySqlTwoPhaseCommitSink");
-    //触发执行
-    env.execute(StreamDemoKafka2Mysql.class.getName());
+    //    dataStream.print()
+    sourceStream.addSink(new MysqlTwoPhaseCommitSink()).name("MySqlTwoPhaseCommitSink");
 
     println("down")
-    env.execute("Flink kafka sink to mysql")
-
-
+    //触发执行
+    env.execute(Kafka2MysqlExactlyOnceApp.getClass.getName)
   }
 }
 
