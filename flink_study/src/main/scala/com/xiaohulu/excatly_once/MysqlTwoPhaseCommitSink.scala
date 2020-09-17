@@ -36,9 +36,9 @@ class MysqlTwoPhaseCommitSink extends TwoPhaseCommitSinkFunction[ObjectNode, Con
     val url = s"jdbc:mysql://${Config.dbIpW}:${Config.dbPassportW}/test_sun?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false"
     println(url)
     val connection = DBConnectUtil.getConnection(url, Config.dbUserW, Config.dbPasswordW)
-//
-//    Class.forName("com.mysql.jdbc.Driver")
-//    val connection = DriverManager.getConnection("jdbc:mysql://192.168.120.158:3306/test_sun?useUnicode=true&characterEncoding=UTF-8&useSSL=false", "root", "1qaz@WSX3edc")
+    //
+    //    Class.forName("com.mysql.jdbc.Driver")
+    //    val connection = DriverManager.getConnection("jdbc:mysql://192.168.120.158:3306/test_sun?useUnicode=true&characterEncoding=UTF-8&useSSL=false", "root", "1qaz@WSX3edc")
     System.err.println("start beginTransaction......." + connection)
     connection
   }
@@ -61,32 +61,22 @@ class MysqlTwoPhaseCommitSink extends TwoPhaseCommitSinkFunction[ObjectNode, Con
     */
   override def invoke(transaction: Connection, value: ObjectNode, context: SinkFunction.Context[_]) = {
     println("start invoke.......")
-    try {
-      val date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())
-      println("===>date:" + date + " " + value)
-      val data = value.get("value")
-      val sql = "insert into test_sun.flink_exactly_once_test (platform_id, room_id, from_id, content,update_time) values (?,?,?,?,?)"
-      //    println( s"insert into test_sun.flink_exactly_once_test (platform_id, room_id, from_id, content,update_time) values (${value._1}, ${value._2}, ${value._3}, ${value._4},'$date')")
-      val ps = transaction.prepareStatement(sql)
-      ps.setString(1, data.get("time").toString)
-      ps.setString(2, data.get("time").toString)
-      ps.setString(3, data.get("xhlid").toString)
-      ps.setString(4, data.get("xhlid").toString)
-      ps.setString(5, date)
-      //执行insert语句
-//      ps.executeUpdate
-      ps.execute()
-      //手动制造异常
-      //    if (value._1.toInt == 1) System.out.println(1 / 0);
-    } catch {
-      case e: Exception => {
-        println("invoke error!!!")
-        e.printStackTrace()
-        System.exit(0)
-
-      }
-    }
-
+    val date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())
+    println("===>date:" + date + " " + value)
+    val data = value.get("value")
+    val sql = "insert into test_sun.flink_exactly_once_test (platform_id, room_id, from_id, content,update_time) values (?,?,?,?,?)"
+    //    println( s"insert into test_sun.flink_exactly_once_test (platform_id, room_id, from_id, content,update_time) values (${value._1}, ${value._2}, ${value._3}, ${value._4},'$date')")
+    val ps = transaction.prepareStatement(sql)
+    ps.setString(1, data.get("time").toString)
+    ps.setString(2, data.get("time").toString)
+    ps.setString(3, data.get("xhlid").toString)
+    ps.setString(4, data.get("xhlid").toString)
+    ps.setString(5, date)
+    //执行insert语句
+    //ps.executeUpdate
+    ps.execute()
+    //手动制造异常
+    //if (value._1.toInt == 1) System.out.println(1 / 0);
   }
 
   /**
