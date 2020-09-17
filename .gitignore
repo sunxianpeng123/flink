@@ -8,3 +8,4 @@ anchor_dy_live_schedule/.idea/
 FlinkDemo/user/
 FlinkDemo/target/
 FlinkDemo/.idea/
+flink_study/src/main/scala/com/xiaohulu/excatly_once/checkpoint/
