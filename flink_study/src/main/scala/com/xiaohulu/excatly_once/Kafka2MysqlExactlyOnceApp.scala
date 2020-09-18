@@ -62,6 +62,13 @@ object Kafka2MysqlExactlyOnceApp {
     kafkaProps.put(FlinkKafkaConsumerBase.KEY_PARTITION_DISCOVERY_INTERVAL_MILLIS, Config.kafka_key_partition_discovery_interval_millis)
     println("start data process")
     val consumer = new FlinkKafkaConsumer[ObjectNode](Config.kafka_topic, new JSONKeyValueDeserializationSchema(true), kafkaProps)
+    /**
+      * Flink从topic中指定的时间点开始消费，指定时间点之前的数据忽略
+      *
+      * 设置开始时间戳 2020-07-28 00:00:00
+      */
+    //consumer.setStartFromTimestamp(1596529536 * 1000L)
+
     //加入kafka数据源
     val sourceStream = env.addSource(consumer)
     //数据传输到下游
