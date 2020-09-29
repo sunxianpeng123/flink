@@ -1,9 +1,9 @@
-package com.xiaohulu.excatly_once
+package com.xiaohulu.demo.excatly_once
 
 import java.util.Properties
 
 import com.google.gson.{Gson, JsonParser}
-import com.xiaohulu.excatly_once.bean.WWWBean
+import com.xiaohulu.demo.excatly_once.bean.WWWBean
 import com.xiaohulu.streaming.sink.mysqlsink.MessageBean
 import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.runtime.state.filesystem.FsStateBackend

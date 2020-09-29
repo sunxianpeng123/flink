@@ -1,7 +1,8 @@
 package com.xiaohulu.streaming.state.keyedstate
 
 import org.apache.flink.api.common.functions.{AggregateFunction, ReduceFunction, RichFlatMapFunction}
-import org.apache.flink.api.common.state.{AggregatingState, AggregatingStateDescriptor, ReducingState, ReducingStateDescriptor}
+import org.apache.flink.api.common.state._
+import org.apache.flink.api.common.time.Time
 import org.apache.flink.api.scala.createTypeInformation
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
@@ -24,6 +25,7 @@ object KeyValueAggregatingState {
   def main(args: Array[String]): Unit = {
     Logger.getLogger("org").setLevel(Level.ERROR)
     val env = StreamExecutionEnvironment.getExecutionEnvironment
+
     val keyStream = env.fromElements((1L, 3L), (1L, 5L),
       (1L, 7L), (2L, 4L),
       (2L, 2L), (2L, 5L))
@@ -48,6 +50,15 @@ class LinkWithAggregatingState extends RichFlatMapFunction[(Long, Long), (Long, 
   var aggregatingState: AggregatingState[Long, String] = _
 
   override def open(parameters: Configuration): Unit = {
+    val stateTtlConfig = StateTtlConfig
+      //指定ttl时间为10秒
+      .newBuilder(Time.seconds(10))
+      //指定ttl刷新时只对创建和写入操作有效,设置状态的声明周期,在规定时间内及时的清理状态数据
+      //      OnCreateAndWrite 仅在创建和写入时更新ttl
+      //      OnReadAndWrite 所有读与写操作都更新ttl
+      .setUpdateType(StateTtlConfig.UpdateType.OnCreateAndWrite)
+      //指定状态可见性为永远不返回过期数据
+      .setStateVisibility(StateTtlConfig.StateVisibility.NeverReturnExpired).build()
 
     //new AggregatingStateDescriptor[(Long, String, String)]
     // 第一个是输入数据类型，第三个是输出数据类型，中间是累加的一个辅助变量，此时你要实现一个new AggregateFunction()这样的接口，你会发现一下子搞出4个需要实现的方法
@@ -66,6 +77,7 @@ class LinkWithAggregatingState extends RichFlatMapFunction[(Long, Long), (Long, 
         b + fields(1)
       }
     }, classOf[String])
+    descriptor.enableTimeToLive(stateTtlConfig)
     aggregatingState = getRuntimeContext.getAggregatingState(descriptor);
   }
 

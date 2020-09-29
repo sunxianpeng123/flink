@@ -1,4 +1,4 @@
-package com.xiaohulu.excatly_once.bean
+package com.xiaohulu.demo.excatly_once.bean
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnoreProperties
 

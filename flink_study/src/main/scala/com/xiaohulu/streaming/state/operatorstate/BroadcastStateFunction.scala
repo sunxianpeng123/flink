@@ -1,4 +1,5 @@
 package com.xiaohulu.streaming.state.operatorstate
+
 import org.apache.flink.api.common.state.{MapStateDescriptor, ValueState, ValueStateDescriptor}
 import org.apache.flink.api.scala._
 import org.apache.flink.configuration.Configuration

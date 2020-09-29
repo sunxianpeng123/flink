@@ -1,4 +1,4 @@
-package com.xiaohulu.excatly_once.bean
+package com.xiaohulu.demo.excatly_once.bean
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
@@ -6,29 +6,37 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgn
  * Created by xiangjia on 2016/12/28 0028.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-class FansInfoResultBean extends Serializable {
-
+class AnchorResultBean extends Serializable {
   var platformId = ""
-  var from_id = ""
+  var room_id = ""
+  var liveId = ""
+
+
   //
   var nickname = ""
   var display_id = ""
   var secId = ""
+  //message
   var secret = ""
-
   //gift
   var head = ""
   var gender = ""
-
-  var dyCoinOut = 0
-  var level = ""
-  var dyValueIn = 0
   var introduce = ""
+  var level = ""
+  var totalViewer = 0
+  var onlineViewer = 0
 
 
+  var dySceneValue = 0
+  var dyValue = 0
+  var dyCoinOut = 0
   var fansCount = 0
   var followCount = 0
+
   var location = ""
+  var title = ""
+  var cover = ""
+
   var timestamp = ""
   var date = ""
 

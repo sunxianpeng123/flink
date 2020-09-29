@@ -1,4 +1,4 @@
-package com.xiaohulu.excatly_once;
+package com.xiaohulu.demo.excatly_once;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

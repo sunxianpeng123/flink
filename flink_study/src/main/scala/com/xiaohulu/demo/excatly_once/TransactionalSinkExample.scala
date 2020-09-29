@@ -16,7 +16,7 @@
 // * limitations under the License.
 // */
 //
-//package com.xiaohulu.excatly_once
+//package com.xiaohulu.demo.excatly_once
 //
 //import java.io.BufferedWriter
 //import java.nio.file.{Files, Paths}

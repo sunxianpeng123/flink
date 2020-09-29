@@ -1,7 +1,8 @@
 package com.xiaohulu.streaming.state.keyedstate
 
 import org.apache.flink.api.common.functions.RichFlatMapFunction
-import org.apache.flink.api.common.state.{ValueState, ValueStateDescriptor}
+import org.apache.flink.api.common.state.{StateTtlConfig, ValueState, ValueStateDescriptor}
+import org.apache.flink.api.common.time.Time
 import org.apache.flink.api.scala._
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
@@ -43,10 +44,20 @@ class CountWindowAverageWithValueState extends RichFlatMapFunction[(Long, Long),
   private var countAndSum: ValueState[(Long, Long)] = _
 
   override def open(parameters: Configuration): Unit = {
+    val stateTtlConfig = StateTtlConfig
+      //指定ttl时间为10秒
+      .newBuilder(Time.seconds(10))
+      //指定ttl刷新时只对创建和写入操作有效,设置状态的声明周期,在规定时间内及时的清理状态数据
+      //      OnCreateAndWrite 仅在创建和写入时更新ttl
+      //      OnReadAndWrite 所有读与写操作都更新ttl
+      .setUpdateType(StateTtlConfig.UpdateType.OnCreateAndWrite)
+      //指定状态可见性为永远不返回过期数据
+      .setStateVisibility(StateTtlConfig.StateVisibility.NeverReturnExpired).build()
     // 注册状态
     // 状态的名字 average
     // 状态存储的数据类型 createTypeInformation[(Long, Long)]
     val descriptor = new ValueStateDescriptor[(Long, Long)]("average", createTypeInformation[(Long, Long)])
+    descriptor.enableTimeToLive(stateTtlConfig)
     countAndSum = getRuntimeContext.getState(descriptor)
   }
 

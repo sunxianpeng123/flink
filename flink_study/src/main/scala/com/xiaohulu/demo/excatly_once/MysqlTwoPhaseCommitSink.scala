@@ -1,4 +1,4 @@
-package com.xiaohulu.excatly_once
+package com.xiaohulu.demo.excatly_once
 
 import java.nio.file.{Files, Paths}
 import java.sql.{Connection, DriverManager, Timestamp}

@@ -1,4 +1,4 @@
-package com.xiaohulu.excatly_once.bean
+package com.xiaohulu.demo.excatly_once.bean
 
 /**
   * \* Created with IntelliJ IDEA.

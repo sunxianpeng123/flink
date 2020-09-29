@@ -1,4 +1,4 @@
-package com.xiaohulu.excatly_once
+package com.xiaohulu.demo.excatly_once
 
 import org.apache.flink.runtime.state.filesystem.FsStateBackend
 import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
