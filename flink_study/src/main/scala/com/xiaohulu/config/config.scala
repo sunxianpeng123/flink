@@ -21,7 +21,10 @@ object config {
       */
 
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
-
+//    1、代码中
+//    2 、提交flink任务的命令中
+//    3、给算子单独设置并行度
+    env.setParallelism(5)
 
 
 
