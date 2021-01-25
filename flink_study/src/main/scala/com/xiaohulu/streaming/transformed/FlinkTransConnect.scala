@@ -22,7 +22,7 @@ object FlinkTransConnect {
     val stream2: DataStream[String] = env.readTextFile(path).flatMap(_.split(" "))
 
     //1 comap
-    val connectedStreams = stream1.connect(stream2)
+    val connectedStreams: ConnectedStreams[Long, String] = stream1.connect(stream2)
 
     //    connectedStreams.map(item=>item*2,item=>(item,1L)).print()//两个元素的处理是完全独立的
     //    connectedStreams.map(item=>println(item+"___"),item=>println(item))

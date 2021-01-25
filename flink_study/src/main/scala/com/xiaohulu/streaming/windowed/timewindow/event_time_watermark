@@ -1,22 +1,9 @@
 1、Event Time 和 Watermarks
 （1）使用Event Time 也会存在一些问题。
-
         乱序与延迟是实时系统中最常见的问题。比如说，在实时系统中广泛使用的消息队列，很难保证端到端的全局有序，从而导致进入 Flink 集群的数据是无序的；
         然后，由于洪峰的存在，比如秒杀或者重跑历史数据，很容易造成数据在消息队列堆积，从而造成延迟。
         解决方案：采用Event Time的流计算处理器，需要评估Event Time进展，比如当窗口结束时，需要通知 Operator 关闭窗口并开始计算。
-（2）Watermark
-        Apache Flink 采用watermark来处理，watermark 带有一个时间戳，作为数据流的一部分随数据流流动，Watermark(t) 表示event time 小于等于 t 的都已经到达，如下图所示。
-
-    方法1：生成Watermark
-        在source中，直接生成watermark，不过，source生成的watermark 优先级比较低，可以被方法2中的覆盖掉。具体的定义在一篇讲Source & Sink 时详述。
-
-    方法2 Timestamp Assigner
-        Timestamp Assigner 输入数据流，产生一个新的数据流，新数据流带有产生的watermark，如果原数据流本身就有watermark，则覆盖原watermark。Timestamp Assigner 一般紧跟在source后，
-        但不是必须的，但是必须在第一个event time 操作前。
-        Timestamp Assigner 分两种：
-            Periodic： 周期性（一定时间间隔或一定数据量）产生watermark。
-            Punctuated： 间断的 watermark，一般根据event 决定是否产生新watermark。
-（3）Watermark的三种使用情况
+（2）Watermark的三种使用情况
    1、本来有序的Stream中的 Watermark
         如果数据元素的事件时间是有序的，Watermark 时间戳会随着数据元素的事件时间按顺 序生成，此时水位线的变化和事件时间保持一直（因为既然是有序的时间，就不需要设置延迟了，那么t就是 0。
         所以 watermark=maxtime-0 = maxtime），也就是理想状态下的水位 线。当 Watermark 时间大于 Windows 结束时间就会触发对 Windows 的数据计算，以此类推， 下一个 Window 也是一样。这种情况其实是乱序数据的一种特殊情况。
@@ -31,11 +18,9 @@
 一、Flink 1.11 之前的watermark生成方式
 2、有 Timestamp 和 Watermark的源函数(Source Function with Timestamps And Watermarks)
     数据流源可以直接为它们产生的数据元素分配timestamp，并且他们也能发送水印。这样做的话，就没必要再去定义timestamp分配器了，
-
-    需要注意的是:如果一个timestamp分配器被使用的话，由源提供的任何timestamp和watermark都会被重写。
+    注意：如果一个timestamp分配器被使用的话，由源提供的任何timestamp和watermark都会被重写。
 
     为了通过源直接为一个元素分配一个timestamp，源需要调用SourceContext中的collectWithTimestamp(...)方法。为了生成watermark，源需要调用emitWatermark(Watermark)方法。
-
     注意：如果流程序在已经拥有时间戳的流上继续使用TimestampAssigner，流中element的原有时间戳将被TimestampAssigner重写。类似地，Watermark也会同样被重写。
 
 3、TimeStamp分配器和 Watermark生成器(Timestamp Assigners / Watermark Generators)
@@ -69,7 +54,8 @@
 
             第二个例子比较容易理解，使用系统时间减去允许的延时时间作为 watermark 的时间。只跟当前系统时间有关系，如果大批事件出现延时的情况，可能很多在 watermark 的时间之后出现了，会被被丢弃。
 
-            第一个例子，在当前事件的事件时间和当前最大时间（记录最大的事件时间）中取最大值，得到最大的事件时间。用这个最大值减去一个允许的延时时间作为 watermark 时间。同样的如果大批事件发生延时，那么对应的 watermark 的时间就会向后推
+            第一个例子，在当前事件的事件时间和当前最大时间（记录最大的事件时间）中取最大值，得到最大的事件时间。用这个最大值减去一个允许的延时时间作为 watermark 时间。
+            同样的如果大批事件发生延时，那么对应的 watermark 的时间就会向后推
 
 5、带标记（Punctuated）水印
     使用 AssignerWithPunctuatedWatermarks 在某个事件指定生成新的水印的时候生成水印。

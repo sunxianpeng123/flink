@@ -21,15 +21,15 @@ object FlinkTransKeyByReduce {
       .flatMap(_.split(" "))
       .map(e => (e, 1L))
     //1 keyby
-    val keyByStream = stream2
+    val keyByStream: KeyedStream[(String, Long), String] = stream2
       //      .keyBy(0)
       .keyBy(_._1)
 
     //  2 reduce
-    val reduceStream = keyByStream.reduce((x, y) => (x._1, x._2 + y._2))
+    val reduceStream: DataStream[(String, Long)] = keyByStream.reduce((x, y) => (x._1, x._2 + y._2))
 
 
-    keyByStream.print()
+    reduceStream.print()
 
 
     env.execute("FlinkSource01")

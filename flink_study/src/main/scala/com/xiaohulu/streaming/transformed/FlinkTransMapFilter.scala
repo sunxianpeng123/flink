@@ -13,39 +13,36 @@ import org.apache.flink.streaming.api.scala._
 object FlinkTransMapFilter {
   def main(args: Array[String]): Unit = {
 
-//  获取运行环境
-    val env :StreamExecutionEnvironment =StreamExecutionEnvironment.getExecutionEnvironment
+    //  获取运行环境
+    val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
 
-    val mapStream=env.generateSequence(1,10)
+    val mapStream = env.generateSequence(1, 10)
     //1   map
     println("map===========")
-    val streamMap= mapStream
-      .map(_*2)
+    val streamMap = mapStream
+      .map(_ * 2)
       .print()
+
     //2 flatmap
     println("flatmap===========")
-    val path ="text01.txt"
-    val flatMapStream =env.readTextFile(path)
+    val path = "text01.txt"
+    val flatMapStream = env.readTextFile(path)
     flatMapStream
       .flatMap(_.split(" "))
-        .print()
+      .print()
 
     //3 filter
     println("filter===========")
-    val filterStream=env.generateSequence(1,10)
+    val filterStream = env.generateSequence(1, 10)
     filterStream
-      .filter(_==1)
+      .filter(_ == 1)
       .print()
 
 
-
-
-
-
     env.execute("FlinkSource01")
-
-
   }
-  case class WordWithCount(word:String,count:Long)
+
+  case class WordWithCount(word: String, count: Long)
+
 }
 
