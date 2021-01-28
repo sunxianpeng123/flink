@@ -46,21 +46,18 @@ object StreamingJoin {
     println("======================Join, inner join==========================")
     //join：是一个流join另一个流，需要设置窗口，2个流join需要的key字段。使用的是innerJoin。对Processing Time和Event Time都支持。
     val res_join = stream_order.join(stream_user)
-      .where(x1 => x1._2).equalTo(y1 => y1._2)//join的条件stream1中的某个字段和stream2中的字段值相等
-      .window(TumblingProcessingTimeWindows.of(Time.seconds(2), Time.seconds(1)))// 指定window，stream1和stream2中的数据会进入到该window中。只有该window中的数据才会被后续操作join
+      .where(x1 => x1._2).equalTo(y1 => y1._2) //join的条件stream1中的某个字段和stream2中的字段值相等
+      .window(TumblingProcessingTimeWindows.of(Time.seconds(2), Time.seconds(1))) // 指定window，stream1和stream2中的数据会进入到该window中。只有该window中的数据才会被后续操作join
       .trigger(ProcessingTimeTrigger.create())
       //    可以 用模式匹配
-      //      .apply((x, y) => (x._2, x._1, y._1))// 捕获到匹配的数据t1和t2，在这里可以进行组装等操作
+      //    .apply((x, y) => (x._2, x._1, y._1))// 捕获到匹配的数据t1和t2，在这里可以进行组装等操作
       //    可以通过实现JoinFunction
       .apply(new JoinFunction[(String, Int), (String, Int), (Int, String, String)] {
-      override def join(first: (String, Int), second: (String, Int)) = (first._2, first._1, second._1)// 捕获到匹配的数据t1和t2，在这里可以进行组装等操作
+      override def join(first: (String, Int), second: (String, Int)) = (first._2, first._1, second._1) // 捕获到匹配的数据t1和t2，在这里可以进行组装等操作
     })
     res_join.print()
 
-
     env.execute("StreamingDemoWithMyNoParallelSourceScala")
-
-
   }
 }
 

@@ -24,8 +24,7 @@ import scala.collection.mutable.ArrayBuffer
   * \*/
 object StreamingJoinCoGroup {
 
-  import org.apache.flink.table.api._
-  import org.apache.flink.table.api.bridge.scala._
+
   import org.apache.flink.streaming.api.scala._
 
   def main(args: Array[String]): Unit = {

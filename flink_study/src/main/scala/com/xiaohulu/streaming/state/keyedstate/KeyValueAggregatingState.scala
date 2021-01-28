@@ -54,8 +54,8 @@ class LinkWithAggregatingState extends RichFlatMapFunction[(Long, Long), (Long, 
       //指定ttl时间为10秒
       .newBuilder(Time.seconds(10))
       //指定ttl刷新时只对创建和写入操作有效,设置状态的声明周期,在规定时间内及时的清理状态数据
-      //      OnCreateAndWrite 仅在创建和写入时更新ttl
-      //      OnReadAndWrite 所有读与写操作都更新ttl
+      //OnCreateAndWrite 仅在创建和写入时更新ttl
+      //OnReadAndWrite 所有读与写操作都更新ttl
       .setUpdateType(StateTtlConfig.UpdateType.OnCreateAndWrite)
       //指定状态可见性为永远不返回过期数据
       .setStateVisibility(StateTtlConfig.StateVisibility.NeverReturnExpired).build()

@@ -6,6 +6,7 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction
 import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceContext
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.windowing.time.Time
+
 /**
   * Created by xuwei.tech on 2018/10/23.
   */
@@ -38,13 +39,14 @@ object StreamingDemoFilterScala {
   }
 
 }
-class MyNoParallelSourceScala2 extends SourceFunction[Long]{
+
+class MyNoParallelSourceScala2 extends SourceFunction[Long] {
 
   var count = 1L
   var isRunning = true
 
   override def run(ctx: SourceContext[Long]) = {
-    while(isRunning){
+    while (isRunning) {
       ctx.collect(count)
       count += 1
       Thread.sleep(1000)

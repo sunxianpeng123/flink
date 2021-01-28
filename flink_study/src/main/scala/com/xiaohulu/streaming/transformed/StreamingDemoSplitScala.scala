@@ -2,12 +2,12 @@ package com.xiaohulu.streaming.transformed
 
 import java.util
 
-import com.xiaohulu.streaming.customsource.MyNoParallelSourceScala
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.collector.selector.OutputSelector
 import org.apache.flink.streaming.api.functions.source.SourceFunction
 import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceContext
-import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
+import org.apache.flink.streaming.api.scala.{SplitStream, StreamExecutionEnvironment}
+
 /**
   * Created by xuwei.tech on 2018/10/23.
   */
@@ -20,13 +20,13 @@ object StreamingDemoSplitScala {
     //隐式转换
     val text = env.addSource(new MyNoParallelSourceScala1)
 
-    val splitStream = text.split(new OutputSelector[Long] {
+    val splitStream:SplitStream[Long] = text.split(new OutputSelector[Long] {
       override def select(value: Long) = {
         val list = new util.ArrayList[String]()
-        if(value % 2 == 0){
-          list.add("even")// 偶数
-        }else{
-          list.add("odd")// 奇数
+        if (value % 2 == 0) {
+          list.add("even") // 偶数
+        } else {
+          list.add("odd") // 奇数
         }
         list
       }
@@ -35,22 +35,22 @@ object StreamingDemoSplitScala {
 
     val evenStream = splitStream.select("even")
 
-    evenStream.print().setParallelism(1)
+    splitStream.print().setParallelism(1)
 
     env.execute("StreamingDemoWithMyNoParallelSourceScala")
-
 
 
   }
 
 }
-class MyNoParallelSourceScala1 extends SourceFunction[Long]{
+
+class MyNoParallelSourceScala1 extends SourceFunction[Long] {
 
   var count = 1L
   var isRunning = true
 
   override def run(ctx: SourceContext[Long]) = {
-    while(isRunning){
+    while (isRunning) {
       ctx.collect(count)
       count += 1
       Thread.sleep(1000)

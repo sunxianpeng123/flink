@@ -34,6 +34,10 @@ object StreamingJoinInternal {
       * join：是一个流join另一个流，需要设置窗口，2个流join需要的key字段。使用的是innerJoin。对Processing Time和Event Time都支持。只输出条件匹配的元素对。
       * intervalJoin：是一个流join另一个流，不需要设置窗口，但是需要设置流join的时间范围（需要时间字段），仅支持Event Time的计算。
       * coGroup：和join类似，不过CoGroupFunction和JoinFunction的参数不一样。coGroup是需要自己组装数据。除了输出匹配的元素对以外，未能匹配的元素也会输出。
+      *     flink在流与流的join中，与其他window join相比，window中的关联通常是两个流中对应的window中的消息可以发生关联， 不能跨window，Interval Join则没有window的概念，直接用时间戳作为关联的条件，
+      *     更具表达力。由于流消息的无限性以及消息乱序的影响，本应关联上的消息可能进入处理系统的时间有较大差异，一条流中的消息，可能需要和另一条流的多条消息关联，因此流流关联时，通常需要类似如下关联条件：
+      *         等值条件如 a.id = b.id
+      *         间戳范围条件 ： a.timestamp ∈ [b.timestamp + lowerBound; b.timestamp + upperBound] b.timestamp + lowerBound <= a.timestamp and a.timestamp <= b.timestamp + upperBound
       * CoFlatMap：没有匹配条件，不进行匹配，分别处理两个流的元素。在此基础上完全可以实现join和cogroup的功能，比他们使用上更加自由。
       */
     /**

@@ -13,21 +13,19 @@ import org.apache.flink.streaming.api.scala._
 object FlinkTransUnion {
   def main(args: Array[String]): Unit = {
 
-//  获取运行环境
-    val env :StreamExecutionEnvironment =StreamExecutionEnvironment.getExecutionEnvironment
+    //  获取运行环境
+    val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
 
 
-    val path1 ="text01.txt"
-    val stream1 =env.readTextFile(path1).flatMap(_.split(" "))
+    val path1 = "text01.txt"
+    val stream1 = env.readTextFile(path1).flatMap(_.split(" "))
 
-    val path2 ="text02.txt"
-    val stream2 =env.readTextFile(path2).flatMap(_.split(" "))
+    val path2 = "text02.txt"
+    val stream2 = env.readTextFile(path2).flatMap(_.split(" "))
 
 
-
-//comap  coflatmap
-    val unionStreams= stream1.union(stream2)
-
+    //comap  coflatmap
+    val unionStreams: DataStream[String] = stream1.union(stream2)
     unionStreams.print()
 
     env.execute("FlinkSource01")
