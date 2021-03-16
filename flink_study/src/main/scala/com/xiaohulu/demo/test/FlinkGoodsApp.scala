@@ -14,20 +14,23 @@ import transform.TransformGoods
 
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.table.api.bridge.scala._
+
 /**
   * \* Created with IntelliJ IDEA.
   * \* User: sunxianpeng
   * \* Date: 2021/2/26
   * \* Time: 18:46
   * \* To change this template use File | Settings | File Templates.
-  * \* Description: 
+  * \* Description:
+  * Program arguments -local_path F:\ScalaProjects\flink\flink_study\src\main\scala\com\xiaohulu\demo\test\db_cs.properties
+  * ./flink.bat run -m remote_ip:8090 -p 1 -c com.test.TestLocal ../flink-streaming-report-forms-1.0-SNAPSHOT-jar-with-dependencies.jar -local_path path
   * \*/
 object FlinkGoodsApp {
   def main(args: Array[String]): Unit = {
     val env = StreamExecutionEnvironment.getExecutionEnvironment
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
     val parameters = ParameterTool.fromArgs(args)
-    val local_path = parameters.get("local_path",null)  //指定参数名：local_path
+    val local_path = parameters.get("local_path", null) //指定参数名：local_path
     println(s"local path =$local_path")
     //读取配置文件
     val paramFromProps = ParameterTool.fromPropertiesFile(local_path)
@@ -101,13 +104,10 @@ object FlinkGoodsApp {
     //println("=== 并行度 === "+input.getParallelism)
 
     val arrStream = TransformGoods.sourceTrans(input)
-    arrStream.print()
+    arrStream.flatMap(e => e).print()
 
 
-
-
-
-
+    env.execute()
 
   }
 }
